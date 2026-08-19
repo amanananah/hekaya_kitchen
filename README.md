@@ -27,6 +27,17 @@ Scan the QR code with Expo Go on Android or the Camera app on iPhone. The camera
 
 ## Create a downloadable Android APK
 
+The repository includes a private GitHub Actions workflow that builds a standalone APK without an Expo account:
+
+1. Open the repository's **Actions** tab.
+2. Choose **Build installable Android app**.
+3. Select **Run workflow**.
+4. When it finishes, download the **Mirath-Android-APK** artifact.
+
+The artifact contains `Mirath-preview.apk`, ready to install on an Android phone after allowing installs from the browser or Files app. It is an internal-testing build, not the final Play Store release.
+
+### Expo cloud alternative
+
 Sign in to an Expo account, then run:
 
 ```powershell

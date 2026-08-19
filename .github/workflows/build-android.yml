@@ -1,0 +1,66 @@
+name: Build installable Android app
+
+on:
+  workflow_dispatch:
+  push:
+    tags:
+      - "android-v*"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: android-apk-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build-apk:
+    name: Create Mirath APK
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+
+    steps:
+      - name: Check out Mirath
+        uses: actions/checkout@v4
+
+      - name: Set up pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 11.19.0
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+
+      - name: Install native dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Generate the Android project
+        run: pnpm exec expo prebuild --platform android --no-install
+        env:
+          EXPO_NO_TELEMETRY: "1"
+
+      - name: Build the standalone release APK
+        working-directory: android
+        run: |
+          chmod +x gradlew
+          ./gradlew assembleRelease --no-daemon
+
+      - name: Give the APK a friendly filename
+        run: cp android/app/build/outputs/apk/release/app-release.apk Mirath-preview.apk
+
+      - name: Upload downloadable APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: Mirath-Android-APK
+          path: Mirath-preview.apk
+          if-no-files-found: error
+          retention-days: 30
