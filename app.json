@@ -1,0 +1,45 @@
+{
+  "expo": {
+    "name": "Mirath",
+    "slug": "mirath",
+    "scheme": "mirath",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "light",
+    "newArchEnabled": true,
+    "splash": {
+      "image": "./assets/splash-icon.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#F7F2E9"
+    },
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "ae.mirath.app",
+      "infoPlist": {
+        "NSCameraUsageDescription": "Mirath uses the camera to record family recipe demonstrations.",
+        "NSMicrophoneUsageDescription": "Mirath records the cook's voice so family stories and instructions are preserved."
+      }
+    },
+    "android": {
+      "package": "ae.mirath.app",
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#274F3C"
+      },
+      "permissions": ["CAMERA", "RECORD_AUDIO"],
+      "predictiveBackGestureEnabled": false
+    },
+    "plugins": [
+      [
+        "expo-camera",
+        {
+          "cameraPermission": "Allow Mirath to record family recipe demonstrations.",
+          "microphonePermission": "Allow Mirath to preserve the cook's voice and stories.",
+          "recordAudioAndroid": true
+        }
+      ]
+    ]
+  }
+}
+
