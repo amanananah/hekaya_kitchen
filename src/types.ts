@@ -9,10 +9,42 @@ export type FamilyMember = {
   ink: string;
 };
 
+export type RecipeCategory = 'Mains' | 'Bread' | 'Sweets' | 'Breakfast';
+
+export type RecipeKnowledge = {
+  label: string;
+  title: string;
+  detail: string;
+};
+
+export type Recipe = {
+  id: string;
+  name: string;
+  arabicName: string;
+  keeper: string;
+  year: string;
+  category: RecipeCategory;
+  summary: string;
+  duration: string;
+  checkpointCount: number;
+  storyCount: number;
+  confidence: number;
+  accent: string;
+  accentDeep: string;
+  art: 'dumplings' | 'grain' | 'rice' | 'bread' | 'noodles';
+  quote: string;
+  quoteStep: string;
+  knowledge: RecipeKnowledge[];
+  lesson: {
+    title: string;
+    checkpoint: string;
+    coach: string;
+  };
+};
+
 export type RecipeStep = {
   index: string;
   title: string;
   detail: string;
   insight: string;
 };
-

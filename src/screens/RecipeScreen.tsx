@@ -1,45 +1,47 @@
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
 
 import { PrimaryButton } from '../components/Buttons';
+import { RecipeArtwork } from '../components/RecipeArtwork';
 import { SubscreenHeader } from '../components/SubscreenHeader';
 import { colors, radii } from '../theme';
+import type { Recipe } from '../types';
 
 type RecipeScreenProps = {
+  recipe: Recipe;
   onBack: () => void;
   onLearn: () => void;
 };
 
-export function RecipeScreen({ onBack, onLearn }: RecipeScreenProps) {
+export function RecipeScreen({ recipe, onBack, onLearn }: RecipeScreenProps) {
   return (
     <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false} style={styles.screen}>
-      <SubscreenHeader title="Luqaimat · لقيمات" subtitle="Grandma Fatima's living recipe" onBack={onBack} />
+      <SubscreenHeader title={`${recipe.name} · ${recipe.arabicName}`} subtitle={`${recipe.keeper}'s living recipe`} onBack={onBack} />
       <View style={styles.recipeArt}>
-        <View style={styles.artRing} />
-        <Text style={styles.recipeBadge}>Original demonstration · 6:42</Text>
-        <View style={styles.plate}>
-          <View style={[styles.luqaimat, styles.one]} />
-          <View style={[styles.luqaimat, styles.two]} />
-          <View style={[styles.luqaimat, styles.three]} />
-        </View>
+        <RecipeArtwork recipe={recipe} />
+        <Text style={styles.recipeBadge}>Original demonstration · {recipe.duration}</Text>
+        <Text style={styles.yearBadge}>Family archive · {recipe.year}</Text>
       </View>
       <View style={styles.chipRow}>
-        <Chip text="5 visual checkpoints" />
+        <Chip text={`${recipe.checkpointCount} visual checkpoints`} />
         <Chip text="Arabic + English" />
-        <Chip text="86% confirmed" />
+        <Chip text={`${recipe.confidence}% confirmed`} />
       </View>
 
+      <Text style={styles.summary}>{recipe.summary}</Text>
+
       <View style={styles.quote}>
-        <Text style={styles.quoteText}>“My mother always made the first batch small. She said the oil also needs to learn.”</Text>
-        <Text style={styles.quoteSource}>Grandma Fatima · memory attached to Step 4</Text>
+        <Text style={styles.quoteText}>“{recipe.quote}”</Text>
+        <Text style={styles.quoteSource}>{recipe.keeper} · {recipe.quoteStep}</Text>
       </View>
 
       <Text style={styles.sectionTitle}>What makes this version ours</Text>
       <Text style={styles.sectionSubtitle}>Knowledge a normal recipe would miss</Text>
       <View style={styles.knowledgeList}>
-        <KnowledgeCard label="TEXTURE" title="The ribbon test" detail="The dough folds back into itself in roughly three seconds." />
-        <KnowledgeCard label="SOUND" title="Listen for the softer sizzle" detail="Grandma lowers the heat when the oil changes from a sharp crackle." />
+        {recipe.knowledge.map((item) => (
+          <KnowledgeCard detail={item.detail} key={item.title} label={item.label} title={item.title} />
+        ))}
       </View>
-      <PrimaryButton onPress={onLearn} style={styles.button}>Cook with Grandma's guidance</PrimaryButton>
+      <PrimaryButton onPress={onLearn} style={styles.button}>Cook with {recipe.keeper}'s guidance</PrimaryButton>
     </ScrollView>
   );
 }
@@ -61,17 +63,13 @@ function KnowledgeCard({ label, title, detail }: { label: string; title: string;
 const styles = StyleSheet.create({
   screen: { flex: 1, backgroundColor: colors.cream },
   content: { paddingHorizontal: 20, paddingTop: 18, paddingBottom: 42 },
-  recipeArt: { height: 250, alignItems: 'center', justifyContent: 'center', overflow: 'hidden', borderRadius: 28, backgroundColor: '#D9B68E' },
-  artRing: { position: 'absolute', width: 320, height: 320, borderWidth: 52, borderColor: 'rgba(255,255,255,0.22)', borderRadius: 160 },
+  recipeArt: { height: 250, overflow: 'hidden', borderRadius: 28 },
   recipeBadge: { position: 'absolute', left: 14, top: 14, zIndex: 2, paddingHorizontal: 10, paddingVertical: 8, overflow: 'hidden', borderRadius: 10, color: colors.forest, backgroundColor: 'rgba(255,250,242,0.92)', fontSize: 10, fontWeight: '800' },
-  plate: { width: 170, height: 170, borderWidth: 14, borderColor: '#FFF8ED', borderRadius: 85, backgroundColor: '#F3E1C6' },
-  luqaimat: { position: 'absolute', width: 46, height: 46, borderWidth: 5, borderColor: '#D88A4F', borderRadius: 23, backgroundColor: '#B96534' },
-  one: { left: 28, top: 32 },
-  two: { right: 24, top: 53 },
-  three: { left: 57, bottom: 22 },
+  yearBadge: { position: 'absolute', right: 14, bottom: 14, paddingHorizontal: 10, paddingVertical: 8, overflow: 'hidden', borderRadius: 10, color: colors.paper, backgroundColor: 'rgba(23,54,43,0.78)', fontSize: 9, fontWeight: '800' },
   chipRow: { marginTop: 14, flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
   chip: { paddingHorizontal: 10, paddingVertical: 7, borderRadius: radii.round, backgroundColor: colors.sagePale },
   chipText: { color: colors.forest, fontSize: 10, fontWeight: '700' },
+  summary: { marginTop: 17, color: colors.inkMuted, fontSize: 13, lineHeight: 20 },
   quote: { marginVertical: 22, padding: 20, borderLeftWidth: 3, borderLeftColor: colors.clay, borderRadius: 16, backgroundColor: colors.paper },
   quoteText: { color: colors.forestDeep, fontFamily: 'serif', fontSize: 18, lineHeight: 27 },
   quoteSource: { marginTop: 11, color: colors.inkMuted, fontSize: 10 },
@@ -84,4 +82,3 @@ const styles = StyleSheet.create({
   knowledgeDetail: { marginTop: 5, color: colors.inkMuted, fontSize: 12, lineHeight: 18 },
   button: { marginTop: 22 },
 });
-

@@ -1,13 +1,14 @@
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 
-import { familyMembers } from '../data';
+import { RecipeArtwork } from '../components/RecipeArtwork';
+import { familyMembers, featuredRecipe } from '../data';
 import { colors, radii } from '../theme';
 import { TopBar } from '../components/TopBar';
 
 type HomeScreenProps = {
   onCapture: () => void;
-  onOpenRecipe: () => void;
-  onLearn: () => void;
+  onOpenRecipe: (recipeId: string) => void;
+  onLearn: (recipeId: string) => void;
   onRecipes: () => void;
 };
 
@@ -49,27 +50,22 @@ export function HomeScreen({ onCapture, onOpenRecipe, onLearn, onRecipes }: Home
           action="View all"
           onAction={onRecipes}
         />
-        <Pressable onPress={onOpenRecipe} style={({ pressed }) => [styles.recipeCard, pressed && styles.pressed]}>
+        <Pressable onPress={() => onOpenRecipe(featuredRecipe.id)} style={({ pressed }) => [styles.recipeCard, pressed && styles.pressed]}>
           <View style={styles.recipeArt}>
-            <View style={styles.artRing} />
-            <Text style={styles.recipeBadge}>Fatima's recipe · 1987</Text>
-            <View style={styles.plate}>
-              <View style={[styles.luqaimat, styles.luqaimatOne]} />
-              <View style={[styles.luqaimat, styles.luqaimatTwo]} />
-              <View style={[styles.luqaimat, styles.luqaimatThree]} />
-            </View>
+            <RecipeArtwork recipe={featuredRecipe} />
+            <Text style={styles.recipeBadge}>{featuredRecipe.keeper} · {featuredRecipe.year}</Text>
           </View>
           <View style={styles.recipeBody}>
             <View style={styles.recipeTopline}>
               <View style={styles.flexOne}>
-                <Text style={styles.recipeTitle}>Luqaimat <Text style={styles.arabic}>لقيمات</Text></Text>
-                <Text style={styles.recipeCopy}>Golden dumplings with date syrup, taught by Grandma Fatima.</Text>
+                <Text style={styles.recipeTitle}>{featuredRecipe.name} <Text style={styles.arabic}>{featuredRecipe.arabicName}</Text></Text>
+                <Text style={styles.recipeCopy}>{featuredRecipe.summary}</Text>
               </View>
               <View style={styles.playButton}><Text style={styles.playIcon}>▶</Text></View>
             </View>
             <View style={styles.chipRow}>
-              <Chip label="5 visual checkpoints" />
-              <Chip label="3 family stories" />
+              <Chip label={`${featuredRecipe.checkpointCount} visual checkpoints`} />
+              <Chip label={`${featuredRecipe.storyCount} family stories`} />
             </View>
           </View>
         </Pressable>
@@ -77,10 +73,10 @@ export function HomeScreen({ onCapture, onOpenRecipe, onLearn, onRecipes }: Home
 
       <View style={styles.section}>
         <SectionHeading title="Continue learning" subtitle="Pick up where Grandma left you" />
-        <Pressable onPress={onLearn} style={({ pressed }) => [styles.learnCard, pressed && styles.pressed]}>
+        <Pressable onPress={() => onLearn(featuredRecipe.id)} style={({ pressed }) => [styles.learnCard, pressed && styles.pressed]}>
           <View style={styles.sparkBox}><Text style={styles.spark}>✦</Text></View>
           <View style={styles.flexOne}>
-            <Text style={styles.learnTitle}>Mastering the dough</Text>
+            <Text style={styles.learnTitle}>{featuredRecipe.lesson.title}</Text>
             <Text style={styles.learnCopy}>Next: recognise the perfect ribbon texture</Text>
           </View>
           <View style={styles.progressCircle}><Text style={styles.progressText}>3/5</Text></View>
@@ -156,14 +152,8 @@ const styles = StyleSheet.create({
   sectionSubtitle: { marginTop: 4, color: colors.inkMuted, fontSize: 11 },
   sectionAction: { paddingVertical: 5, color: colors.clay, fontSize: 12, fontWeight: '800' },
   recipeCard: { overflow: 'hidden', borderWidth: StyleSheet.hairlineWidth, borderColor: colors.line, borderRadius: radii.large, backgroundColor: colors.paper },
-  recipeArt: { height: 194, alignItems: 'center', justifyContent: 'center', overflow: 'hidden', backgroundColor: '#D9B68E' },
-  artRing: { position: 'absolute', width: 280, height: 280, borderWidth: 44, borderColor: 'rgba(255,255,255,0.22)', borderRadius: 140 },
+  recipeArt: { height: 194, overflow: 'hidden' },
   recipeBadge: { position: 'absolute', left: 14, top: 14, zIndex: 2, paddingHorizontal: 10, paddingVertical: 8, overflow: 'hidden', borderRadius: 10, color: colors.forest, backgroundColor: 'rgba(255,250,242,0.92)', fontSize: 10, fontWeight: '800' },
-  plate: { width: 154, height: 154, borderWidth: 13, borderColor: '#FFF8ED', borderRadius: 77, backgroundColor: '#F3E1C6' },
-  luqaimat: { position: 'absolute', width: 42, height: 42, borderWidth: 5, borderColor: '#D88A4F', borderRadius: 21, backgroundColor: '#B96534' },
-  luqaimatOne: { left: 25, top: 28 },
-  luqaimatTwo: { right: 21, top: 47 },
-  luqaimatThree: { left: 51, bottom: 20 },
   recipeBody: { padding: 18 },
   recipeTopline: { flexDirection: 'row', alignItems: 'flex-start', gap: 12 },
   flexOne: { flex: 1 },
@@ -189,4 +179,3 @@ const styles = StyleSheet.create({
   familyName: { marginTop: 8, color: colors.inkMuted, fontSize: 11 },
   pressed: { opacity: 0.84, transform: [{ scale: 0.99 }] },
 });
-

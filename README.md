@@ -9,6 +9,7 @@ Mirath is a native mobile family-heritage app that helps elders pass down the un
 - Built with React Native and Expo—not a website or WebView
 - Records real video and audio with the phone camera
 - Demonstrates capture, recipe extraction, and Grandchild Mode
+- Includes a searchable five-recipe family archive with recipe-specific stories and coaching
 - Configured for Android APK and iOS builds
 - Uses the native application ID `ae.mirath.app`
 

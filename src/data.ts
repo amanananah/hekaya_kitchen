@@ -1,5 +1,5 @@
 import { colors } from './theme';
-import type { FamilyMember, RecipeStep } from './types';
+import type { FamilyMember, Recipe, RecipeStep } from './types';
 
 export const familyMembers: FamilyMember[] = [
   { initials: 'F', name: 'Fatima', color: colors.sagePale, ink: colors.forest },
@@ -7,6 +7,146 @@ export const familyMembers: FamilyMember[] = [
   { initials: 'S', name: 'Saeed', color: '#EEE0AD', ink: '#806522' },
   { initials: '+', name: 'Invite', color: '#D9DCED', ink: '#525A8D' },
 ];
+
+export const recipes: Recipe[] = [
+  {
+    id: 'luqaimat',
+    name: 'Luqaimat',
+    arabicName: 'لقيمات',
+    keeper: 'Grandma Fatima',
+    year: '1987',
+    category: 'Sweets',
+    summary: 'Golden dumplings with date syrup, preserved in Grandma Fatima’s own voice.',
+    duration: '6:42',
+    checkpointCount: 5,
+    storyCount: 3,
+    confidence: 86,
+    accent: '#D9B68E',
+    accentDeep: '#B96534',
+    art: 'dumplings',
+    quote: 'My mother always made the first batch small. She said the oil also needs to learn.',
+    quoteStep: 'Memory attached to Step 4',
+    knowledge: [
+      { label: 'TEXTURE', title: 'The ribbon test', detail: 'The dough folds back into itself in roughly three seconds.' },
+      { label: 'SOUND', title: 'Listen for the softer sizzle', detail: 'Grandma lowers the heat when the oil changes from a sharp crackle.' },
+    ],
+    lesson: {
+      title: 'Mastering the dough',
+      checkpoint: 'Let the dough fall in a slow ribbon.',
+      coach: 'Your mixture may be slightly thick. Add one teaspoon of warm water, then compare again.',
+    },
+  },
+  {
+    id: 'harees',
+    name: 'Harees',
+    arabicName: 'هريس',
+    keeper: 'Grandma Fatima',
+    year: '1992',
+    category: 'Mains',
+    summary: 'A patient wheat and chicken dish remembered by its texture, rhythm and quiet simmer.',
+    duration: '9:18',
+    checkpointCount: 4,
+    storyCount: 2,
+    confidence: 91,
+    accent: '#C8B997',
+    accentDeep: '#8C6842',
+    art: 'grain',
+    quote: 'Do not rush the wooden spoon. The wheat tells you when it is ready to become one.',
+    quoteStep: 'Grandma’s phrase from Step 3',
+    knowledge: [
+      { label: 'RHYTHM', title: 'The slow fold', detail: 'Fold from the edge to the centre until the mixture moves as a single soft wave.' },
+      { label: 'TEXTURE', title: 'A trail that closes', detail: 'The spoon leaves a line for a moment, then the harees gently settles over it.' },
+    ],
+    lesson: {
+      title: 'Finding the final texture',
+      checkpoint: 'The spoon trail should close slowly behind you.',
+      coach: 'The mixture still looks slightly loose. Continue folding gently before adding any more water.',
+    },
+  },
+  {
+    id: 'machboos',
+    name: 'Chicken Machboos',
+    arabicName: 'مجبوس دجاج',
+    keeper: 'Aunt Mariam',
+    year: '2001',
+    category: 'Mains',
+    summary: 'Fragrant spiced rice with chicken, dried lime and Aunt Mariam’s steam test.',
+    duration: '8:05',
+    checkpointCount: 6,
+    storyCount: 4,
+    confidence: 82,
+    accent: '#D8A85F',
+    accentDeep: '#8B4D2B',
+    art: 'rice',
+    quote: 'When the steam smells round instead of sharp, the rice has taken in the whole story.',
+    quoteStep: 'Aunt Mariam’s note from Step 5',
+    knowledge: [
+      { label: 'AROMA', title: 'Wait for the spices to soften', detail: 'The sharp dried-lime scent becomes warmer just before the rice is covered.' },
+      { label: 'STEAM', title: 'The cloth test', detail: 'Aunt Mariam checks that the steam rises evenly before lowering the heat.' },
+    ],
+    lesson: {
+      title: 'Reading the rice',
+      checkpoint: 'Look for separate grains with a soft, glossy centre.',
+      coach: 'The grains are close. Rest the pot covered for three more minutes before fluffing from the sides.',
+    },
+  },
+  {
+    id: 'khameer',
+    name: 'Khameer Bread',
+    arabicName: 'خبز خمير',
+    keeper: 'Mama Aisha',
+    year: '1998',
+    category: 'Bread',
+    summary: 'Soft saffron bread captured through hand feel, surface bubbles and the family breakfast story.',
+    duration: '7:26',
+    checkpointCount: 5,
+    storyCount: 3,
+    confidence: 88,
+    accent: '#DEA36B',
+    accentDeep: '#A75C35',
+    art: 'bread',
+    quote: 'The dough should feel like your palm after you have warmed it around a tea cup.',
+    quoteStep: 'Mama Aisha’s comparison from Step 2',
+    knowledge: [
+      { label: 'TOUCH', title: 'A warm-palm softness', detail: 'The dough keeps a shallow fingertip mark without sticking to the whole finger.' },
+      { label: 'VISUAL', title: 'Watch the small bubbles', detail: 'Turn the bread when bubbles reach the centre rather than judging only by colour.' },
+    ],
+    lesson: {
+      title: 'Knowing when to turn',
+      checkpoint: 'Wait until small bubbles travel from the edge to the centre.',
+      coach: 'The centre needs a little longer. Keep the heat steady and watch for two or three new bubbles.',
+    },
+  },
+  {
+    id: 'balaleet',
+    name: 'Balaleet',
+    arabicName: 'بلاليط',
+    keeper: 'Uncle Saeed',
+    year: '2004',
+    category: 'Breakfast',
+    summary: 'Sweet saffron vermicelli with egg, remembered through balance rather than exact spoonfuls.',
+    duration: '5:51',
+    checkpointCount: 4,
+    storyCount: 2,
+    confidence: 79,
+    accent: '#E5C36E',
+    accentDeep: '#9A7428',
+    art: 'noodles',
+    quote: 'Taste after the egg goes on top—the sweet and savoury should arrive together.',
+    quoteStep: 'Uncle Saeed’s tasting note',
+    knowledge: [
+      { label: 'BALANCE', title: 'Sweet meets savoury', detail: 'The saffron sweetness should remain gentle enough for the seasoned egg to be noticed.' },
+      { label: 'TEXTURE', title: 'Keep the threads separate', detail: 'Lift from underneath instead of stirring in circles so the vermicelli stays light.' },
+    ],
+    lesson: {
+      title: 'Balancing the final plate',
+      checkpoint: 'The vermicelli threads should lift apart without feeling dry.',
+      coach: 'The strands look slightly tight. Fold in one spoon of the reserved cooking water before plating.',
+    },
+  },
+];
+
+export const featuredRecipe: Recipe = recipes[0]!;
 
 export const extractedSteps: RecipeStep[] = [
   {
@@ -28,4 +168,3 @@ export const extractedSteps: RecipeStep[] = [
     insight: 'Visual checkpoint',
   },
 ];
-
