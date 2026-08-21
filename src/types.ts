@@ -37,8 +37,12 @@ export type Recipe = {
   knowledge: RecipeKnowledge[];
   lesson: {
     title: string;
-    checkpoint: string;
-    coach: string;
+    steps: Array<{
+      title: string;
+      checkpoint: string;
+      coach: string;
+      familyTip: string;
+    }>;
   };
 };
 

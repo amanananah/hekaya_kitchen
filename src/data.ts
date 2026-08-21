@@ -32,8 +32,13 @@ export const recipes: Recipe[] = [
     ],
     lesson: {
       title: 'Mastering the dough',
-      checkpoint: 'Let the dough fall in a slow ribbon.',
-      coach: 'Your mixture may be slightly thick. Add one teaspoon of warm water, then compare again.',
+      steps: [
+        { title: 'Bring the dough together', checkpoint: 'Mix until no dry flour remains and the dough looks evenly saffron-gold.', coach: 'Sweep around the bowl once more; a small dry pocket is still visible at the edge.', familyTip: 'Grandma Fatima mixes with an open hand so she can feel every dry patch.' },
+        { title: 'Let it wake up', checkpoint: 'The rested dough should look softly domed with tiny bubbles across the surface.', coach: 'The bubbles are still sparse. Give the covered bowl a little more time in a warm place.', familyTip: 'She listens for a faint airy sound when the cover is lifted.' },
+        { title: 'Find the ribbon', checkpoint: 'Let the dough fall from your fingers in one slow, unbroken ribbon.', coach: 'Your mixture may be slightly thick. Add one teaspoon of warm water, then compare again.', familyTip: 'Count slowly to three—the ribbon should fold back into itself before disappearing.' },
+        { title: 'Read the oil', checkpoint: 'A tiny test drop should rise steadily, surrounded by gentle bubbles.', coach: 'The test drop is colouring too quickly. Lower the heat and wait before the first batch.', familyTip: 'The first small piece teaches the oil; it is never part of the serving plate.' },
+        { title: 'Finish at deep gold', checkpoint: 'Turn each piece when its lower edge becomes amber, then lift at an even deep gold.', coach: 'One side is ready. Turn gently now and watch for the sizzle to soften.', familyTip: 'Grandma Fatima judges the final moment by sound as much as colour.' },
+      ],
     },
   },
   {
@@ -59,8 +64,13 @@ export const recipes: Recipe[] = [
     ],
     lesson: {
       title: 'Finding the final texture',
-      checkpoint: 'The spoon trail should close slowly behind you.',
-      coach: 'The mixture still looks slightly loose. Continue folding gently before adding any more water.',
+      steps: [
+        { title: 'Check the soaked wheat', checkpoint: 'Each grain should look swollen and give easily when pressed between two fingers.', coach: 'The centre still looks firm. Let the wheat soak a little longer before cooking.', familyTip: 'Grandma Fatima presses one grain against the side of the bowl instead of watching the clock.' },
+        { title: 'Cook until the fibres loosen', checkpoint: 'The chicken should separate with the back of the spoon without pulling.', coach: 'The fibres are still holding together. Keep the simmer low and patient.', familyTip: 'A quiet pot gives a softer harees; hard boiling makes the texture uneven.' },
+        { title: 'Fold everything into one', checkpoint: 'Wheat and chicken should stop looking separate as you fold from edge to centre.', coach: 'A few fibres are still distinct. Continue the same slow folding rhythm.', familyTip: 'She turns the pot a little after every few folds so no edge is forgotten.' },
+        { title: 'Find the closing trail', checkpoint: 'The spoon trail should stay visible for a moment, then close slowly behind you.', coach: 'The mixture still looks slightly loose. Continue folding gently before adding any more water.', familyTip: 'This is the moment Grandma calls “one soft wave.”' },
+        { title: 'Finish with a soft shine', checkpoint: 'The surface should settle smooth while a small spoon of ghee remains visible on top.', coach: 'The surface is almost there. Smooth it once without beating out the softness.', familyTip: 'The final spoon circles only once—harees should arrive calm at the table.' },
+      ],
     },
   },
   {
@@ -86,8 +96,13 @@ export const recipes: Recipe[] = [
     ],
     lesson: {
       title: 'Reading the rice',
-      checkpoint: 'Look for separate grains with a soft, glossy centre.',
-      coach: 'The grains are close. Rest the pot covered for three more minutes before fluffing from the sides.',
+      steps: [
+        { title: 'Bloom the spice base', checkpoint: 'The spice aroma should become warm and rounded rather than sharp.', coach: 'The scent is still sharp. Stir gently and give the spices another moment.', familyTip: 'Aunt Mariam smells above the pot before adding anything else.' },
+        { title: 'Build colour on the chicken', checkpoint: 'The chicken should release easily from the pot with a light golden surface.', coach: 'One side still looks pale. Leave it undisturbed briefly before turning.', familyTip: 'She waits for the pot to release the chicken; pulling early leaves the flavour behind.' },
+        { title: 'Settle the rice evenly', checkpoint: 'The rice should form an even layer beneath liquid that just covers the grains.', coach: 'The centre is slightly higher. Level it gently without compacting the rice.', familyTip: 'Aunt Mariam shakes the pot by its handles instead of pressing with a spoon.' },
+        { title: 'Watch the steam paths', checkpoint: 'Small steam holes should appear across the surface, including near the centre.', coach: 'Steam is gathering mostly at the edge. Keep the lid closed and the heat low.', familyTip: 'Uneven steam means the rice needs time, not stirring.' },
+        { title: 'Rest before fluffing', checkpoint: 'Look for separate grains with soft, glossy centres and no wet layer below.', coach: 'The grains are close. Rest the pot covered for three more minutes before fluffing from the sides.', familyTip: 'She fluffs from the outside inward so the long grains stay whole.' },
+      ],
     },
   },
   {
@@ -113,8 +128,13 @@ export const recipes: Recipe[] = [
     ],
     lesson: {
       title: 'Knowing when to turn',
-      checkpoint: 'Wait until small bubbles travel from the edge to the centre.',
-      coach: 'The centre needs a little longer. Keep the heat steady and watch for two or three new bubbles.',
+      steps: [
+        { title: 'Wake the yeast', checkpoint: 'A creamy foam should gather across the surface with a gently sweet smell.', coach: 'Only the edges are active. Give the mixture a few more warm minutes.', familyTip: 'Mama Aisha looks for foam that holds for a moment when the bowl moves.' },
+        { title: 'Feel the dough', checkpoint: 'A fingertip should leave a shallow mark without the dough coating your whole finger.', coach: 'The dough is still a little firm. Wet your hand lightly and fold again.', familyTip: 'It should feel like your palm after warming it around a tea cup.' },
+        { title: 'Wait for the rounded rise', checkpoint: 'The dough should look airy and rounded, with its earlier fingertip mark gone.', coach: 'The surface is relaxing but not yet airy. Keep it covered a little longer.', familyTip: 'She protects the bowl from direct air, even on a warm morning.' },
+        { title: 'Read the first side', checkpoint: 'Wait until small bubbles travel from the edge to the centre.', coach: 'The centre needs a little longer. Keep the heat steady and watch for two or three new bubbles.', familyTip: 'The centre bubbles matter more than the colour at the edge.' },
+        { title: 'Finish with honey-coloured spots', checkpoint: 'The second side should show soft golden patches while the bread still bends easily.', coach: 'The colour is ready. Lift it now before the centre loses its softness.', familyTip: 'Mama Aisha stacks the breads under cloth so their steam keeps them tender.' },
+      ],
     },
   },
   {
@@ -140,8 +160,13 @@ export const recipes: Recipe[] = [
     ],
     lesson: {
       title: 'Balancing the final plate',
-      checkpoint: 'The vermicelli threads should lift apart without feeling dry.',
-      coach: 'The strands look slightly tight. Fold in one spoon of the reserved cooking water before plating.',
+      steps: [
+        { title: 'Soften without breaking', checkpoint: 'A vermicelli strand should bend easily while keeping a slight bite at the centre.', coach: 'The strand still snaps when bent. Give it a brief moment longer in the water.', familyTip: 'Uncle Saeed tastes one strand early because it keeps cooking after draining.' },
+        { title: 'Keep the threads separate', checkpoint: 'The drained vermicelli should fall in loose threads rather than one heavy bundle.', coach: 'The strands are gathering together. Lift and separate them gently from underneath.', familyTip: 'Never stir in circles—lift from the bottom and let the threads fall.' },
+        { title: 'Fold in the saffron sweetness', checkpoint: 'The colour and gloss should be even, with no syrup collecting at the bottom.', coach: 'A small dark patch remains. Fold once more from that side of the pan.', familyTip: 'He stops folding as soon as the colour is even so the threads stay long.' },
+        { title: 'Set the egg softly', checkpoint: 'The egg should be just set and flexible enough to drape over the vermicelli.', coach: 'The surface is still glossy in the centre. Give it one quiet minute.', familyTip: 'The egg continues setting on the warm noodles, so he removes it early.' },
+        { title: 'Taste both together', checkpoint: 'The vermicelli threads should lift apart, with sweet saffron and savoury egg in one bite.', coach: 'The strands look slightly tight. Fold in one spoon of reserved cooking water before plating.', familyTip: 'Uncle Saeed never adjusts the sweetness until he tastes it with the egg.' },
+      ],
     },
   },
 ];
