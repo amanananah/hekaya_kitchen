@@ -340,13 +340,6 @@ function RecordingPreview({ onRetake, onUseRecording, recipe, uri }: { onRetake:
       <Text style={styles.previewTitle}>Your real video is ready</Text>
       <Text style={styles.previewCopy}>Play it now and check that the cooking and voice are clear.</Text>
       <RecordedVideo uri={uri} />
-      <View style={styles.recordingProof}>
-        <Text style={styles.recordingProofIcon}>✓</Text>
-        <View style={styles.flexOne}>
-          <Text style={styles.recordingProofTitle}>Original recording preserved</Text>
-          <Text style={styles.recordingProofCopy}>This exact video will stay attached to the lesson during this demo.</Text>
-        </View>
-      </View>
       <PrimaryButton onPress={onUseRecording}>Use this recording</PrimaryButton>
       <SecondaryButton onPress={onRetake} style={styles.previewRetake}>Record again</SecondaryButton>
     </ScrollView>
@@ -581,10 +574,6 @@ const styles = StyleSheet.create({
   videoFrameCompact: { height: 210, marginTop: 0, marginBottom: 14 },
   realBadge: { position: 'absolute', left: 12, top: 12, paddingHorizontal: 10, paddingVertical: 7, borderRadius: 10, backgroundColor: 'rgba(12,25,20,0.72)' },
   realBadgeText: { color: colors.white, fontSize: 9, fontWeight: '800', letterSpacing: 1 },
-  recordingProof: { marginBottom: 18, padding: 15, flexDirection: 'row', alignItems: 'center', gap: 12, borderRadius: 19, backgroundColor: colors.sagePale },
-  recordingProofIcon: { width: 34, color: colors.forest, fontSize: 25, fontWeight: '800', textAlign: 'center' },
-  recordingProofTitle: { color: colors.forestDeep, fontSize: 14, fontWeight: '800' },
-  recordingProofCopy: { marginTop: 4, color: colors.inkMuted, fontSize: 11, lineHeight: 16 },
   previewRetake: { marginTop: 10 },
   analysisScreen: { flex: 1, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 30, backgroundColor: colors.cream },
   analysisOrbit: { width: 156, height: 156, alignItems: 'center', justifyContent: 'center', borderWidth: 1, borderColor: colors.line, borderRadius: 78 },
