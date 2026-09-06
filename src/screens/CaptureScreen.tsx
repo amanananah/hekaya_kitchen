@@ -33,11 +33,8 @@ export function CaptureScreen(props: CaptureScreenProps) {
 
   return (
     <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false} style={styles.screen}>
-      <SubscreenHeader title="Capture a recipe" subtitle="The family cook can simply cook as usual" onBack={props.onBack} />
-      <Text style={styles.title}>Record the family cook</Text>
-      <Text style={styles.body}>
-        They can speak naturally in Arabic or English. You will review the recipe together afterwards.
-      </Text>
+      <SubscreenHeader title="Record a recipe" subtitle={`${props.recipe.name} · about 2 minutes`} onBack={props.onBack} />
+      <Text style={styles.title}>Ready to record</Text>
 
       {props.recipe.id === 'peanut-butter-sandwich' ? (
         <View style={styles.practiceCard}>
