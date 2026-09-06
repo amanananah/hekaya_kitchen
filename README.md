@@ -10,6 +10,7 @@ Hekaya Kitchen is built around people teaching people. A family cook records a n
 
 - Native React Native and Expo mobile experience, not a WebView
 - Real camera and microphone permission flow, video recording, and playback of the captured cooking clip
+- Two-minute Peanut Butter Sandwich practice lesson for a reliable live demonstration
 - Elder-friendly, voice-first capture with large controls and minimal typing
 - Dedicated Easy Mode with only three large actions: record, review, and reply
 - A persistent Arabic/English choice across Easy Mode, review, and reply screens
@@ -45,7 +46,7 @@ pnpm doctor
 
 1. On Home, choose **Easy Mode** to open the distraction-free, accessible experience.
 2. Switch to Arabic if needed, then choose **Record a recipe**.
-3. Record a real Luqaimat demonstration and stop it.
+3. Use the two-minute **Peanut Butter Sandwich** practice lesson and stop the recording when the sandwich is finished.
 4. Replay the exact captured video, check its picture and sound, then choose **Use this recording**.
 5. Review the organised draft one question at a time. Confirm each step or demonstrate a voice correction.
 6. Save the family-verified lesson and open it.

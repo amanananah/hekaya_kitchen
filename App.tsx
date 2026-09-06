@@ -14,7 +14,7 @@ import { LessonScreen } from './src/screens/LessonScreen';
 import { RecipeScreen } from './src/screens/RecipeScreen';
 import { RecipesScreen } from './src/screens/RecipesScreen';
 import { TogetherScreen } from './src/screens/TogetherScreen';
-import { featuredRecipe, recipes } from './src/data';
+import { featuredRecipe, practiceRecipe, recipes } from './src/data';
 import { colors } from './src/theme';
 import type { AppScreen, CapturePhase } from './src/types';
 
@@ -22,6 +22,7 @@ export default function App() {
   const [screen, setScreen] = useState<AppScreen>('home');
   const [capturePhase, setCapturePhase] = useState<CapturePhase>('intro');
   const [recordingUri, setRecordingUri] = useState<string | null>(null);
+  const [captureRecipeId, setCaptureRecipeId] = useState(practiceRecipe.id);
   const [captureReturnScreen, setCaptureReturnScreen] = useState<'home' | 'elder'>('home');
   const [elderArabic, setElderArabic] = useState(false);
   const [selectedRecipeId, setSelectedRecipeId] = useState(featuredRecipe.id);
@@ -51,8 +52,9 @@ export default function App() {
     setScreen('recipe');
   }
 
-  function openCapture(returnTo: 'home' | 'elder', phase: CapturePhase = 'intro') {
+  function openCapture(returnTo: 'home' | 'elder', phase: CapturePhase = 'intro', recipeId = practiceRecipe.id) {
     setCaptureReturnScreen(returnTo);
+    setCaptureRecipeId(recipeId);
     if (phase === 'intro') setRecordingUri(null);
     setCapturePhase(phase);
     setScreen('capture');
@@ -86,6 +88,7 @@ export default function App() {
     ? { ...recipe, confirmedSteps: recipe.lesson.steps.length, detailsToConfirm: 0 }
     : recipe);
   const selectedRecipe = displayRecipes.find((recipe) => recipe.id === selectedRecipeId) ?? featuredRecipe;
+  const captureRecipe = displayRecipes.find((recipe) => recipe.id === captureRecipeId) ?? practiceRecipe;
   const displayedFeaturedRecipe = displayRecipes.find((recipe) => recipe.id === featuredRecipe.id) ?? featuredRecipe;
 
   const showBottomNav = ['home', 'recipes', 'capture', 'family'].includes(screen) && !(screen === 'capture' && capturePhase !== 'intro');
@@ -117,7 +120,7 @@ export default function App() {
               setHasAttempt(true);
               setScreen('elderReply');
             }}
-            onReview={() => openCapture('elder', 'result')}
+            onReview={() => openCapture('elder', 'result', featuredRecipe.id)}
           />
         ) : null}
         {screen === 'elderReply' ? (
@@ -144,13 +147,14 @@ export default function App() {
               setCapturePhase('intro');
             }}
             onSave={() => {
-              setVerifiedRecipeIds((current) => new Set(current).add(featuredRecipe.id));
+              setVerifiedRecipeIds((current) => new Set(current).add(captureRecipe.id));
               if (captureReturnScreen === 'elder') setScreen('elder');
-              else openRecipe(featuredRecipe.id, 'home');
+              else openRecipe(captureRecipe.id, 'home');
             }}
             onUseRecording={processRecording}
             phase={capturePhase}
             recordingUri={recordingUri}
+            recipe={captureRecipe}
           />
         ) : null}
         {screen === 'recipe' ? (

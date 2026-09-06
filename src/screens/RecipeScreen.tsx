@@ -21,7 +21,7 @@ export function RecipeScreen({ recipe, onBack, onLearn }: RecipeScreenProps) {
       <View style={styles.recipeArt}>
         <RecipeArtwork recipe={recipe} />
         <Text style={styles.recipeBadge}>Original demonstration · {recipe.duration}</Text>
-        <Text style={styles.yearBadge}>Taught since {recipe.year}</Text>
+        <Text style={styles.yearBadge}>{recipe.year === 'Practice' ? 'Practice lesson' : `Taught since ${recipe.year}`}</Text>
       </View>
       <View style={styles.chipRow}>
         <Chip text={`${recipe.checkpointCount} visual checkpoints`} />

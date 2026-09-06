@@ -1,5 +1,5 @@
 import { colors } from './theme';
-import type { FamilyMember, Recipe, RecipeStep } from './types';
+import type { FamilyMember, Recipe } from './types';
 
 export const familyMembers: FamilyMember[] = [
   { initials: 'F', name: 'Fatima', color: colors.sagePale, ink: colors.forest },
@@ -174,39 +174,40 @@ export const recipes: Recipe[] = [
       ],
     },
   },
+  {
+    id: 'peanut-butter-sandwich',
+    name: 'Peanut Butter Sandwich',
+    arabicName: 'ساندويتش زبدة الفول السوداني',
+    keeper: 'Amanah',
+    year: 'Practice',
+    category: 'Breakfast',
+    summary: 'A simple two-minute practice recipe for demonstrating real recording, review, and guided learning.',
+    duration: '2:00',
+    checkpointCount: 5,
+    storyCount: 0,
+    confirmedSteps: 0,
+    detailsToConfirm: 5,
+    accent: '#D7B07A',
+    accentDeep: '#9A6137',
+    art: 'bread',
+    quote: 'Spread slowly to the corners so every bite tastes the same.',
+    quoteStep: 'Practice tip from Step 3',
+    knowledge: [
+      { label: 'PRACTICE', title: 'Easy to demonstrate', detail: 'The whole recipe can be recorded clearly in about two minutes.' },
+      { label: 'CHECKPOINT', title: 'Cover every corner', detail: 'The peanut butter should reach close to all four edges of the bread.' },
+    ],
+    lesson: {
+      title: 'Make a peanut butter sandwich',
+      steps: [
+        { title: 'Set out the ingredients', checkpoint: 'Place two bread slices, peanut butter, a spoon, and a plate where they can be seen.', coach: 'Keep everything together in the camera frame before you begin.', familyTip: 'A simple setup makes the lesson easy for another person to follow.' },
+        { title: 'Add the peanut butter', checkpoint: 'Scoop one spoonful of peanut butter onto the centre of one bread slice.', coach: 'Start in the centre so it is easier to spread without tearing the bread.', familyTip: 'A spoon works well and keeps this practice demonstration simple.' },
+        { title: 'Spread to the corners', checkpoint: 'Move the spoon slowly outward until the peanut butter reaches close to every edge.', coach: 'One corner is still empty. Use the back of the spoon to cover it gently.', familyTip: 'A thin, even layer makes every bite taste the same.' },
+        { title: 'Close the sandwich', checkpoint: 'Place the second bread slice on top and line up all four corners.', coach: 'Turn the top slice slightly until the edges match.', familyTip: 'Press only lightly so the filling stays inside.' },
+        { title: 'Show the finished result', checkpoint: 'Place the complete sandwich on the plate and show both sides to the camera.', coach: 'Hold the plate still for a moment so the final result is clear.', familyTip: 'This final view becomes the learner’s visual checkpoint.' },
+      ],
+    },
+  },
 ];
 
 export const featuredRecipe: Recipe = recipes[0]!;
-
-export const extractedSteps: RecipeStep[] = [
-  {
-    index: 'Step 1',
-    title: 'Mix the dough',
-    detail: 'Flour, yeast, saffron and warm water were combined by hand.',
-    insight: 'Visual checkpoint',
-  },
-  {
-    index: 'Step 2',
-    title: 'Wait for the ribbon',
-    detail: 'The dough should fall slowly from the fingers without breaking.',
-    insight: "Fatima's phrase",
-  },
-  {
-    index: 'Step 3',
-    title: 'Rest the dough',
-    detail: 'Cover it in a warm place until small bubbles appear.',
-    insight: 'Needs confirmation',
-  },
-  {
-    index: 'Step 4',
-    title: 'Test the oil',
-    detail: 'Begin with one small piece and wait for a gentle sizzle.',
-    insight: "Fatima's story",
-  },
-  {
-    index: 'Step 5',
-    title: 'Fry until deep gold',
-    detail: 'Turn each piece once the lower edge becomes amber.',
-    insight: 'Needs confirmation',
-  },
-];
+export const practiceRecipe: Recipe = recipes.find((recipe) => recipe.id === 'peanut-butter-sandwich')!;

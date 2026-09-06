@@ -6,9 +6,8 @@ import { Alert, Platform, Pressable, ScrollView, StyleSheet, Text, View } from '
 import { BrandMark } from '../components/BrandMark';
 import { PrimaryButton, SecondaryButton } from '../components/Buttons';
 import { SubscreenHeader } from '../components/SubscreenHeader';
-import { extractedSteps } from '../data';
 import { colors, radii } from '../theme';
-import type { CapturePhase } from '../types';
+import type { CapturePhase, Recipe, RecipeStep } from '../types';
 
 type CaptureScreenProps = {
   elderArabic?: boolean;
@@ -20,16 +19,17 @@ type CaptureScreenProps = {
   onSave: () => void;
   onUseRecording: () => void;
   recordingUri: string | null;
+  recipe: Recipe;
 };
 
 export function CaptureScreen(props: CaptureScreenProps) {
   if (props.phase === 'camera') {
-    if (Platform.OS === 'web') return <WebCamera onBack={props.onRetake} onRecorded={props.onRecorded} />;
-    return <NativeCamera onBack={props.onRetake} onRecorded={props.onRecorded} />;
+    if (Platform.OS === 'web') return <WebCamera onBack={props.onRetake} onRecorded={props.onRecorded} recipe={props.recipe} />;
+    return <NativeCamera onBack={props.onRetake} onRecorded={props.onRecorded} recipe={props.recipe} />;
   }
-  if (props.phase === 'preview' && props.recordingUri) return <RecordingPreview onRetake={props.onRetake} onUseRecording={props.onUseRecording} uri={props.recordingUri} />;
-  if (props.phase === 'analysis') return <AnalysisScreen />;
-  if (props.phase === 'result') return <ResultScreen arabic={props.elderArabic} onBack={props.onBack} onRetake={props.onRetake} onSave={props.onSave} recordingUri={props.recordingUri} />;
+  if (props.phase === 'preview' && props.recordingUri) return <RecordingPreview onRetake={props.onRetake} onUseRecording={props.onUseRecording} recipe={props.recipe} uri={props.recordingUri} />;
+  if (props.phase === 'analysis') return <AnalysisScreen recipe={props.recipe} />;
+  if (props.phase === 'result') return <ResultScreen arabic={props.elderArabic} onBack={props.onBack} onRetake={props.onRetake} onSave={props.onSave} recipe={props.recipe} recordingUri={props.recordingUri} />;
 
   return (
     <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false} style={styles.screen}>
@@ -38,6 +38,14 @@ export function CaptureScreen(props: CaptureScreenProps) {
       <Text style={styles.body}>
         They can speak naturally in Arabic or English. You will review the recipe together afterwards.
       </Text>
+
+      {props.recipe.id === 'peanut-butter-sandwich' ? (
+        <View style={styles.practiceCard}>
+          <Text style={styles.practiceLabel}>QUICK PRACTICE · ABOUT 2 MINUTES</Text>
+          <Text style={styles.practiceTitle}>Peanut Butter Sandwich</Text>
+          <Text style={styles.practiceCopy}>You only need two bread slices, peanut butter, a spoon, and a plate.</Text>
+        </View>
+      ) : null}
 
       <View style={styles.introArt}>
         <View style={styles.introOrbit} />
@@ -56,7 +64,7 @@ export function CaptureScreen(props: CaptureScreenProps) {
   );
 }
 
-function NativeCamera({ onBack, onRecorded }: { onBack: () => void; onRecorded: (uri?: string) => void }) {
+function NativeCamera({ onBack, onRecorded, recipe }: { onBack: () => void; onRecorded: (uri?: string) => void; recipe: Recipe }) {
   const cameraRef = useRef<CameraView | null>(null);
   const [cameraPermission, requestCameraPermission] = useCameraPermissions();
   const [microphonePermission, requestMicrophonePermission] = useMicrophonePermissions();
@@ -151,14 +159,14 @@ function NativeCamera({ onBack, onRecorded }: { onBack: () => void; onRecorded: 
         </Pressable>
         <View style={styles.liveBadge}>
           <View style={[styles.liveDot, !recording && styles.liveDotIdle]} />
-          <Text style={styles.liveText}>{recording ? 'Recording Luqaimat' : 'Ready for Luqaimat'}</Text>
+          <Text style={styles.liveText}>{recording ? `Recording ${recipe.name}` : `Ready for ${recipe.name}`}</Text>
         </View>
         <Text style={styles.timer}>{formatDuration(elapsed)}</Text>
       </View>
       <View style={styles.focusFrame} />
       <View style={styles.demoCue}>
-        <Text style={styles.demoCueTitle}>LUQAIMAT DEMO</Text>
-        <Text style={styles.demoCueText}>Show the dough, shaping, frying, or finished plate.</Text>
+        <Text style={styles.demoCueTitle}>{recipe.name.toLocaleUpperCase()} DEMO</Text>
+        <Text style={styles.demoCueText}>{recipe.id === 'peanut-butter-sandwich' ? 'Show the ingredients, spreading, closing, and finished sandwich.' : 'Keep each important cooking action clearly in view.'}</Text>
       </View>
       {recording ? <View style={styles.detectedRow}><DetectedChip text="Original voice is being preserved" /></View> : null}
       <View style={styles.cameraBottom}>
@@ -180,7 +188,7 @@ function NativeCamera({ onBack, onRecorded }: { onBack: () => void; onRecorded: 
 
 // expo-camera does not support video recording on web, so we use the browser's
 // MediaRecorder API directly. The preview and recording UI match the native flow.
-function WebCamera({ onBack, onRecorded }: { onBack: () => void; onRecorded: (uri?: string) => void }) {
+function WebCamera({ onBack, onRecorded, recipe }: { onBack: () => void; onRecorded: (uri?: string) => void; recipe: Recipe }) {
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const streamRef = useRef<MediaStream | null>(null);
   const recorderRef = useRef<MediaRecorder | null>(null);
@@ -302,14 +310,14 @@ function WebCamera({ onBack, onRecorded }: { onBack: () => void; onRecorded: (ur
         </Pressable>
         <View style={styles.liveBadge}>
           <View style={[styles.liveDot, !recording && styles.liveDotIdle]} />
-          <Text style={styles.liveText}>{recording ? 'Recording Luqaimat' : 'Ready for Luqaimat'}</Text>
+          <Text style={styles.liveText}>{recording ? `Recording ${recipe.name}` : `Ready for ${recipe.name}`}</Text>
         </View>
         <Text style={styles.timer}>{formatDuration(elapsed)}</Text>
       </View>
       <View style={styles.focusFrame} />
       <View style={styles.demoCue}>
-        <Text style={styles.demoCueTitle}>LUQAIMAT DEMO</Text>
-        <Text style={styles.demoCueText}>Show the dough, shaping, frying, or finished plate.</Text>
+        <Text style={styles.demoCueTitle}>{recipe.name.toLocaleUpperCase()} DEMO</Text>
+        <Text style={styles.demoCueText}>{recipe.id === 'peanut-butter-sandwich' ? 'Show the ingredients, spreading, closing, and finished sandwich.' : 'Keep each important cooking action clearly in view.'}</Text>
       </View>
       {recording ? <View style={styles.detectedRow}><DetectedChip text="Original voice is being preserved" /></View> : null}
       <View style={styles.cameraBottom}>
@@ -328,10 +336,10 @@ function WebCamera({ onBack, onRecorded }: { onBack: () => void; onRecorded: (ur
   );
 }
 
-function RecordingPreview({ onRetake, onUseRecording, uri }: { onRetake: () => void; onUseRecording: () => void; uri: string }) {
+function RecordingPreview({ onRetake, onUseRecording, recipe, uri }: { onRetake: () => void; onUseRecording: () => void; recipe: Recipe; uri: string }) {
   return (
     <ScrollView contentContainerStyle={styles.scrollContent} style={styles.screen}>
-      <SubscreenHeader title="Check your recording" subtitle="Luqaimat cooking demonstration" onBack={onRetake} />
+      <SubscreenHeader title="Check your recording" subtitle={`${recipe.name} demonstration`} onBack={onRetake} />
       <Text style={styles.previewTitle}>Your real video is ready</Text>
       <Text style={styles.previewCopy}>Play it now and check that the cooking and voice are clear.</Text>
       <RecordedVideo uri={uri} />
@@ -361,7 +369,7 @@ function RecordedVideo({ compact = false, uri }: { compact?: boolean; uri: strin
   );
 }
 
-function AnalysisScreen() {
+function AnalysisScreen({ recipe }: { recipe: Recipe }) {
   return (
     <View style={styles.analysisScreen}>
       <View style={styles.analysisOrbit}>
@@ -370,7 +378,7 @@ function AnalysisScreen() {
       </View>
       <Text style={styles.analysisTitle}>Preparing your recipe</Text>
       <Text style={styles.analysisCopy}>
-        Transcribing the recording and organising the cooking steps.
+        Organising your {recipe.name} recording into clear cooking steps.
       </Text>
       <View style={styles.analysisList}>
         <AnalysisRow complete text="Arabic and English transcript created" />
@@ -381,12 +389,21 @@ function AnalysisScreen() {
   );
 }
 
-function ResultScreen({ arabic = false, onBack, onRetake, onSave, recordingUri }: { arabic?: boolean; onBack: () => void; onRetake: () => void; onSave: () => void; recordingUri: string | null }) {
+function ResultScreen({ arabic = false, onBack, onRetake, onSave, recipe, recordingUri }: { arabic?: boolean; onBack: () => void; onRetake: () => void; onSave: () => void; recipe: Recipe; recordingUri: string | null }) {
   const [reviewIndex, setReviewIndex] = useState(0);
   const [voiceEditing, setVoiceEditing] = useState(false);
   const [corrected, setCorrected] = useState(() => new Set<string>());
   const [skipped, setSkipped] = useState(() => new Set<string>());
-  const corrections: Record<string, string> = {
+  const extractedSteps: RecipeStep[] = recipe.lesson.steps.map((lessonStep, index) => ({
+    index: `Step ${index + 1}`,
+    title: lessonStep.title,
+    detail: lessonStep.checkpoint,
+    insight: index === 2 || index === 4 ? 'Needs confirmation' : index === 1 ? `${recipe.keeper}'s phrase` : 'Visual checkpoint',
+  }));
+  const corrections: Record<string, string> = recipe.id === 'peanut-butter-sandwich' ? {
+    'Step 3': 'Spread slowly until the peanut butter reaches close to all four edges.',
+    'Step 5': 'Place the sandwich on the plate and hold it still for the final view.',
+  } : {
     'Step 3': 'Keep it covered until the dough is rounded and tiny bubbles cover the surface.',
     'Step 5': 'Turn gently more than once so every side reaches an even deep gold.',
   };
@@ -399,7 +416,14 @@ function ResultScreen({ arabic = false, onBack, onRetake, onSave, recordingUri }
     'Step 4': { title: 'شكّلي اللقيمات', detail: 'بللي يدك وخذي قطعاً صغيرة متساوية.' },
     'Step 5': { title: 'اقلِي حتى يصبح ذهبياً', detail: 'قلّبي اللقيمات برفق حتى يصبح لونها ذهبياً من كل الجهات.' },
   };
-  const displayedStep = arabic ? arabicSteps[step.index] : undefined;
+  const arabicPracticeSteps: Record<string, { title: string; detail: string }> = {
+    'Step 1': { title: 'حضّري المكونات', detail: 'ضعي شريحتي خبز وزبدة الفول السوداني وملعقة وطبقاً أمام الكاميرا.' },
+    'Step 2': { title: 'أضيفي زبدة الفول السوداني', detail: 'ضعي ملعقة واحدة في وسط شريحة الخبز.' },
+    'Step 3': { title: 'افرديها حتى الزوايا', detail: 'حرّكي الملعقة ببطء حتى تصل زبدة الفول السوداني إلى جميع الحواف.' },
+    'Step 4': { title: 'أغلقي الساندويتش', detail: 'ضعي الشريحة الثانية فوق الأولى وحاذي الزوايا الأربع.' },
+    'Step 5': { title: 'اعرضي النتيجة', detail: 'ضعي الساندويتش على الطبق وأظهري الجانبين للكاميرا.' },
+  };
+  const displayedStep = arabic ? (recipe.id === 'peanut-butter-sandwich' ? arabicPracticeSteps[step.index] : arabicSteps[step.index]) : undefined;
 
   function confirmStep(useVoiceCorrection = false) {
     if (useVoiceCorrection) setCorrected((current) => new Set(current).add(step.index));
@@ -430,8 +454,8 @@ function ResultScreen({ arabic = false, onBack, onRetake, onSave, recordingUri }
             <>
               <View style={styles.materialsCard}>
                 <Text style={styles.materialsLabel}>{arabic ? 'المكونات' : 'INGREDIENTS'}</Text>
-                <Text style={[styles.materialsText, arabic && styles.rtlText]}>{arabic ? 'دقيق · خميرة · زعفران · ماء دافئ · دبس تمر' : 'Flour · yeast · saffron · warm water · date syrup'}</Text>
-                <Text style={[styles.materialsNote, arabic && styles.rtlText]}>{arabic ? 'لم نخمن الكميات. يمكن إضافتها لاحقاً.' : 'No amounts were guessed. They can be added later.'}</Text>
+                <Text style={[styles.materialsText, arabic && styles.rtlText]}>{recipe.id === 'peanut-butter-sandwich' ? (arabic ? 'شريحتا خبز · زبدة الفول السوداني · ملعقة · طبق' : '2 bread slices · peanut butter · spoon · plate') : (arabic ? 'دقيق · خميرة · زعفران · ماء دافئ · دبس تمر' : 'Flour · yeast · saffron · warm water · date syrup')}</Text>
+                <Text style={[styles.materialsNote, arabic && styles.rtlText]}>{recipe.id === 'peanut-butter-sandwich' ? (arabic ? 'تأكدوا من عدم وجود حساسية من الفول السوداني قبل التقديم.' : 'Check for peanut allergies before serving.') : (arabic ? 'لم نخمن الكميات. يمكن إضافتها لاحقاً.' : 'No amounts were guessed. They can be added later.')}</Text>
               </View>
               <View style={styles.languageCard}>
                 <Text style={[styles.languageTitle, arabic && styles.rtlText]}>{arabic ? 'الكلام العربي الأصلي والترجمة الإنجليزية جاهزان' : 'Arabic original and English translation ready'}</Text>
@@ -512,6 +536,10 @@ const styles = StyleSheet.create({
   eyebrow: { color: colors.clay, fontSize: 11, fontWeight: '800', letterSpacing: 1.6 },
   title: { marginTop: 10, color: colors.forestDeep, fontFamily: 'serif', fontSize: 37, lineHeight: 40, letterSpacing: -1.1 },
   body: { marginTop: 13, color: colors.inkMuted, fontSize: 14, lineHeight: 22 },
+  practiceCard: { marginTop: 18, padding: 17, borderRadius: 20, backgroundColor: colors.clayPale },
+  practiceLabel: { color: colors.clay, fontSize: 10, fontWeight: '800', letterSpacing: 1.1 },
+  practiceTitle: { marginTop: 7, color: colors.forestDeep, fontSize: 19, fontWeight: '800' },
+  practiceCopy: { marginTop: 5, color: colors.inkMuted, fontSize: 12, lineHeight: 18 },
   introArt: { height: 260, marginVertical: 24, alignItems: 'center', justifyContent: 'center', overflow: 'hidden', borderRadius: radii.hero, backgroundColor: colors.sagePale },
   introOrbit: { position: 'absolute', width: 282, height: 282, borderWidth: 1, borderColor: colors.line, borderRadius: 141 },
   phone: { width: 120, height: 208, alignItems: 'center', justifyContent: 'center', borderWidth: 6, borderColor: colors.forest, borderRadius: 28, backgroundColor: colors.paper, transform: [{ rotate: '-5deg' }] },
