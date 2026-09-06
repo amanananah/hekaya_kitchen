@@ -1,18 +1,22 @@
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 
 import { RecipeArtwork } from '../components/RecipeArtwork';
-import { familyMembers, featuredRecipe } from '../data';
+import { familyMembers } from '../data';
 import { colors, radii } from '../theme';
 import { TopBar } from '../components/TopBar';
+import type { Recipe } from '../types';
 
 type HomeScreenProps = {
+  featuredRecipe: Recipe;
   onCapture: () => void;
+  onElderMode: () => void;
   onOpenRecipe: (recipeId: string) => void;
   onLearn: (recipeId: string) => void;
   onRecipes: () => void;
+  onTogether: () => void;
 };
 
-export function HomeScreen({ onCapture, onOpenRecipe, onLearn, onRecipes }: HomeScreenProps) {
+export function HomeScreen({ featuredRecipe, onCapture, onElderMode, onOpenRecipe, onLearn, onRecipes, onTogether }: HomeScreenProps) {
   return (
     <ScrollView
       contentContainerStyle={styles.content}
@@ -22,24 +26,30 @@ export function HomeScreen({ onCapture, onOpenRecipe, onLearn, onRecipes }: Home
       <TopBar />
 
       <View style={styles.welcome}>
-        <Text style={styles.eyebrow}>GOOD AFTERNOON, AMANAH</Text>
-        <Text style={styles.heroTitle}>What shall we pass down today?</Text>
-        <Text style={styles.heroCopy}>
-          Record the gestures, stories and little secrets that make a family recipe yours.
-        </Text>
+        <Text style={styles.heroTitle}>Good afternoon, Amanah</Text>
+        <Text style={styles.heroCopy}>What would you like to cook today?</Text>
       </View>
+
+      <Pressable accessibilityRole="button" onPress={onElderMode} style={({ pressed }) => [styles.elderModeCard, pressed && styles.pressed]}>
+        <View style={styles.elderModeIcon}><Text style={styles.elderModeIconText}>ح</Text></View>
+        <View style={styles.flexOne}>
+          <Text style={styles.elderModeTitle}>Easy Mode</Text>
+          <Text style={styles.elderModeCopy}>Large text · fewer choices · voice-first · العربية</Text>
+        </View>
+        <Text style={styles.chevron}>›</Text>
+      </Pressable>
 
       <View style={styles.captureHero}>
         <View style={[styles.orbit, styles.orbitLarge]} />
         <View style={[styles.orbit, styles.orbitSmall]} />
-        <Text style={[styles.eyebrow, styles.goldEyebrow]}>NEW FAMILY MEMORY</Text>
-        <Text style={styles.captureTitle}>Let Grandma cook. Mirath will remember.</Text>
+        <Text style={[styles.eyebrow, styles.goldEyebrow]}>ADD A RECIPE</Text>
+        <Text style={styles.captureTitle}>Record a family recipe</Text>
         <Text style={styles.captureCopy}>
-          No scripts or measurements needed. Capture the recipe exactly as it happens.
+          We'll turn the family cook's explanation into clear steps for them to review.
         </Text>
         <Pressable onPress={onCapture} style={({ pressed }) => [styles.lightButton, pressed && styles.pressed]}>
           <View style={styles.cameraGlyph}><View style={styles.cameraDot} /></View>
-          <Text style={styles.lightButtonText}>Start capturing</Text>
+          <Text style={styles.lightButtonText}>Record a lesson</Text>
         </Pressable>
       </View>
 
@@ -65,14 +75,29 @@ export function HomeScreen({ onCapture, onOpenRecipe, onLearn, onRecipes }: Home
             </View>
             <View style={styles.chipRow}>
               <Chip label={`${featuredRecipe.checkpointCount} visual checkpoints`} />
-              <Chip label={`${featuredRecipe.storyCount} family stories`} />
+              <Chip label={`${featuredRecipe.confirmedSteps} of 5 steps confirmed`} />
             </View>
           </View>
         </Pressable>
       </View>
 
       <View style={styles.section}>
-        <SectionHeading title="Continue learning" subtitle="Pick up where Grandma left you" />
+        <SectionHeading title="Cook together" subtitle="Your next family cooking time" />
+        <Pressable onPress={onTogether} style={({ pressed }) => [styles.togetherCard, pressed && styles.pressed]}>
+          <View style={styles.calendarBox}>
+            <Text style={styles.calendarDay}>FRI</Text>
+            <Text style={styles.calendarDate}>6:30</Text>
+          </View>
+          <View style={styles.flexOne}>
+            <Text style={styles.togetherTitle}>{featuredRecipe.name} with {featuredRecipe.keeper}</Text>
+            <Text style={styles.togetherCopy}>Amanah and Saeed joined · roles ready</Text>
+          </View>
+          <Text style={styles.chevron}>›</Text>
+        </Pressable>
+      </View>
+
+      <View style={styles.section}>
+        <SectionHeading title="Continue learning" subtitle={`Pick up where ${featuredRecipe.keeper} left you`} />
         <Pressable onPress={() => onLearn(featuredRecipe.id)} style={({ pressed }) => [styles.learnCard, pressed && styles.pressed]}>
           <View style={styles.sparkBox}><Text style={styles.spark}>✦</Text></View>
           <View style={styles.flexOne}>
@@ -133,8 +158,13 @@ const styles = StyleSheet.create({
   content: { paddingHorizontal: 20, paddingTop: 18, paddingBottom: 32 },
   welcome: { marginBottom: 23 },
   eyebrow: { color: colors.clay, fontSize: 11, fontWeight: '800', letterSpacing: 1.7 },
-  heroTitle: { maxWidth: 340, marginTop: 10, color: colors.forestDeep, fontFamily: 'serif', fontSize: 44, lineHeight: 46, letterSpacing: -1.7 },
-  heroCopy: { maxWidth: 360, marginTop: 13, color: colors.inkMuted, fontSize: 15, lineHeight: 23 },
+  heroTitle: { maxWidth: 340, color: colors.forestDeep, fontFamily: 'serif', fontSize: 32, lineHeight: 36, letterSpacing: -0.8 },
+  heroCopy: { maxWidth: 360, marginTop: 6, color: colors.inkMuted, fontSize: 14, lineHeight: 21 },
+  elderModeCard: { minHeight: 78, marginBottom: 18, padding: 13, flexDirection: 'row', alignItems: 'center', gap: 12, borderWidth: 1, borderColor: colors.line, borderRadius: 21, backgroundColor: colors.paper },
+  elderModeIcon: { width: 52, height: 52, alignItems: 'center', justifyContent: 'center', borderRadius: 17, backgroundColor: colors.sagePale },
+  elderModeIconText: { color: colors.forest, fontSize: 22, fontWeight: '800' },
+  elderModeTitle: { color: colors.forestDeep, fontSize: 15, fontWeight: '800' },
+  elderModeCopy: { marginTop: 5, color: colors.inkMuted, fontSize: 11 },
   captureHero: { minHeight: 238, padding: 24, overflow: 'hidden', borderRadius: radii.hero, backgroundColor: colors.forest },
   orbit: { position: 'absolute', borderWidth: 1, borderColor: 'rgba(255,250,242,0.16)', borderRadius: radii.round },
   orbitLarge: { width: 250, height: 250, right: -88, top: -100 },
@@ -165,6 +195,13 @@ const styles = StyleSheet.create({
   chipRow: { marginTop: 14, flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
   chip: { paddingHorizontal: 10, paddingVertical: 7, borderRadius: radii.round, backgroundColor: colors.sagePale },
   chipText: { color: colors.forest, fontSize: 10, fontWeight: '700' },
+  togetherCard: { minHeight: 82, padding: 13, flexDirection: 'row', alignItems: 'center', gap: 12, borderRadius: 21, backgroundColor: colors.sagePale },
+  calendarBox: { width: 55, height: 55, alignItems: 'center', justifyContent: 'center', borderRadius: 17, backgroundColor: colors.paper },
+  calendarDay: { color: colors.clay, fontSize: 8, fontWeight: '800', letterSpacing: 1 },
+  calendarDate: { marginTop: 2, color: colors.forestDeep, fontSize: 14, fontWeight: '800' },
+  togetherTitle: { color: colors.forestDeep, fontSize: 13, fontWeight: '800' },
+  togetherCopy: { marginTop: 4, color: colors.inkMuted, fontSize: 10 },
+  chevron: { color: colors.forest, fontSize: 24 },
   learnCard: { padding: 17, flexDirection: 'row', alignItems: 'center', gap: 13, borderRadius: 22, backgroundColor: colors.clayPale },
   sparkBox: { width: 56, height: 56, alignItems: 'center', justifyContent: 'center', borderRadius: 18, backgroundColor: colors.paper },
   spark: { color: colors.clay, fontSize: 25 },

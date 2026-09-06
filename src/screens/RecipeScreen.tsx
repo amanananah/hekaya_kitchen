@@ -1,4 +1,4 @@
-import { ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 
 import { PrimaryButton } from '../components/Buttons';
 import { RecipeArtwork } from '../components/RecipeArtwork';
@@ -13,19 +13,23 @@ type RecipeScreenProps = {
 };
 
 export function RecipeScreen({ recipe, onBack, onLearn }: RecipeScreenProps) {
+  const isVerified = recipe.detailsToConfirm === 0;
+
   return (
     <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false} style={styles.screen}>
       <SubscreenHeader title={`${recipe.name} · ${recipe.arabicName}`} subtitle={`${recipe.keeper}'s living recipe`} onBack={onBack} />
       <View style={styles.recipeArt}>
         <RecipeArtwork recipe={recipe} />
         <Text style={styles.recipeBadge}>Original demonstration · {recipe.duration}</Text>
-        <Text style={styles.yearBadge}>Family archive · {recipe.year}</Text>
+        <Text style={styles.yearBadge}>Taught since {recipe.year}</Text>
       </View>
       <View style={styles.chipRow}>
         <Chip text={`${recipe.checkpointCount} visual checkpoints`} />
         <Chip text="Arabic + English" />
-        <Chip text={`${recipe.confidence}% confirmed`} />
+        <Chip text={isVerified ? 'Family-verified lesson' : `${recipe.confirmedSteps} of 5 steps confirmed`} />
       </View>
+
+      {!isVerified ? <Text style={styles.needsReview}>{recipe.detailsToConfirm} details still need {recipe.keeper}'s confirmation</Text> : null}
 
       <Text style={styles.summary}>{recipe.summary}</Text>
 
@@ -34,6 +38,15 @@ export function RecipeScreen({ recipe, onBack, onLearn }: RecipeScreenProps) {
         <Text style={styles.quoteSource}>{recipe.keeper} · {recipe.quoteStep}</Text>
       </View>
 
+      <Pressable accessibilityRole="button" style={styles.voiceCard}>
+        <View style={styles.voicePlay}><Text style={styles.voicePlayText}>▶</Text></View>
+        <View style={styles.flexOne}>
+          <Text style={styles.voiceTitle}>Hear the original voice</Text>
+          <Text style={styles.voiceCopy}>{recipe.keeper}'s recording · {recipe.duration}</Text>
+        </View>
+        <Text style={styles.language}>AR / EN</Text>
+      </Pressable>
+
       <Text style={styles.sectionTitle}>What makes this version ours</Text>
       <Text style={styles.sectionSubtitle}>Knowledge a normal recipe would miss</Text>
       <View style={styles.knowledgeList}>
@@ -41,7 +54,9 @@ export function RecipeScreen({ recipe, onBack, onLearn }: RecipeScreenProps) {
           <KnowledgeCard detail={item.detail} key={item.title} label={item.label} title={item.title} />
         ))}
       </View>
-      <PrimaryButton onPress={onLearn} style={styles.button}>Cook with {recipe.keeper}'s guidance</PrimaryButton>
+      <PrimaryButton disabled={!isVerified} onPress={onLearn} style={styles.button}>
+        {isVerified ? `Cook with ${recipe.keeper}'s guidance` : `Waiting for ${recipe.keeper}'s review`}
+      </PrimaryButton>
     </ScrollView>
   );
 }
@@ -69,10 +84,18 @@ const styles = StyleSheet.create({
   chipRow: { marginTop: 14, flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
   chip: { paddingHorizontal: 10, paddingVertical: 7, borderRadius: radii.round, backgroundColor: colors.sagePale },
   chipText: { color: colors.forest, fontSize: 10, fontWeight: '700' },
+  needsReview: { marginTop: 10, color: colors.clay, fontSize: 11, fontWeight: '800' },
   summary: { marginTop: 17, color: colors.inkMuted, fontSize: 13, lineHeight: 20 },
   quote: { marginVertical: 22, padding: 20, borderLeftWidth: 3, borderLeftColor: colors.clay, borderRadius: 16, backgroundColor: colors.paper },
   quoteText: { color: colors.forestDeep, fontFamily: 'serif', fontSize: 18, lineHeight: 27 },
   quoteSource: { marginTop: 11, color: colors.inkMuted, fontSize: 10 },
+  voiceCard: { marginBottom: 22, minHeight: 72, padding: 13, flexDirection: 'row', alignItems: 'center', gap: 12, borderRadius: 18, backgroundColor: colors.sagePale },
+  voicePlay: { width: 44, height: 44, alignItems: 'center', justifyContent: 'center', borderRadius: 22, backgroundColor: colors.forest },
+  voicePlayText: { marginLeft: 2, color: colors.white, fontSize: 13 },
+  flexOne: { flex: 1 },
+  voiceTitle: { color: colors.forestDeep, fontSize: 13, fontWeight: '800' },
+  voiceCopy: { marginTop: 4, color: colors.inkMuted, fontSize: 10 },
+  language: { color: colors.clay, fontSize: 9, fontWeight: '800' },
   sectionTitle: { color: colors.forestDeep, fontSize: 16, fontWeight: '800' },
   sectionSubtitle: { marginTop: 4, color: colors.inkMuted, fontSize: 11 },
   knowledgeList: { marginTop: 14, gap: 11 },

@@ -3,19 +3,19 @@ import { Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-
 
 import { RecipeArtwork } from '../components/RecipeArtwork';
 import { TopBar } from '../components/TopBar';
-import { recipes } from '../data';
 import { colors, radii } from '../theme';
 import type { Recipe, RecipeCategory } from '../types';
 
 type RecipesScreenProps = {
   onOpenRecipe: (recipeId: string) => void;
+  recipes: Recipe[];
 };
 
 type Filter = 'All' | RecipeCategory;
 
 const filters: Filter[] = ['All', 'Mains', 'Bread', 'Sweets', 'Breakfast'];
 
-export function RecipesScreen({ onOpenRecipe }: RecipesScreenProps) {
+export function RecipesScreen({ onOpenRecipe, recipes }: RecipesScreenProps) {
   const [query, setQuery] = useState('');
   const [filter, setFilter] = useState<Filter>('All');
 
@@ -29,9 +29,6 @@ export function RecipesScreen({ onOpenRecipe }: RecipesScreenProps) {
     });
   }, [filter, query]);
 
-  const totalStories = recipes.reduce((total, recipe) => total + recipe.storyCount, 0);
-  const totalCheckpoints = recipes.reduce((total, recipe) => total + recipe.checkpointCount, 0);
-
   return (
     <ScrollView
       contentContainerStyle={styles.content}
@@ -40,16 +37,8 @@ export function RecipesScreen({ onOpenRecipe }: RecipesScreenProps) {
       style={styles.screen}
     >
       <TopBar />
-      <Text style={styles.eyebrow}>THE FAMILY VAULT</Text>
-      <Text style={styles.title}>Every recipe holds a person, a place and a way of knowing.</Text>
-
-      <View style={styles.statsCard}>
-        <Stat value={recipes.length.toString()} label="living recipes" />
-        <View style={styles.statDivider} />
-        <Stat value={totalStories.toString()} label="family stories" />
-        <View style={styles.statDivider} />
-        <Stat value={totalCheckpoints.toString()} label="visual cues" />
-      </View>
+      <Text style={styles.title}>Recipes</Text>
+      <Text style={styles.pageSubtitle}>{recipes.length} family recipes</Text>
 
       <View style={styles.searchBox}>
         <Text style={styles.searchIcon}>⌕</Text>
@@ -88,7 +77,7 @@ export function RecipesScreen({ onOpenRecipe }: RecipesScreenProps) {
 
       <View style={styles.listHeading}>
         <View>
-          <Text style={styles.listTitle}>{query || filter !== 'All' ? 'Matching memories' : 'Preserved recipes'}</Text>
+          <Text style={styles.listTitle}>{query || filter !== 'All' ? 'Results' : 'All recipes'}</Text>
           <Text style={styles.listSubtitle}>{visibleRecipes.length} {visibleRecipes.length === 1 ? 'recipe' : 'recipes'} in this view</Text>
         </View>
         <View style={styles.voiceBadge}><Text style={styles.voiceBadgeText}>Original voices kept</Text></View>
@@ -104,7 +93,7 @@ export function RecipesScreen({ onOpenRecipe }: RecipesScreenProps) {
         <View style={styles.emptyState}>
           <Text style={styles.emptySymbol}>✦</Text>
           <Text style={styles.emptyTitle}>No family memory matches yet</Text>
-          <Text style={styles.emptyCopy}>Try another word or choose All to see the complete archive.</Text>
+          <Text style={styles.emptyCopy}>Try another word or choose All to see the complete collection.</Text>
         </View>
       ) : null}
     </ScrollView>
@@ -131,25 +120,11 @@ function RecipeRow({ recipe, onPress }: { recipe: Recipe; onPress: () => void })
   );
 }
 
-function Stat({ value, label }: { value: string; label: string }) {
-  return (
-    <View style={styles.stat}>
-      <Text style={styles.statValue}>{value}</Text>
-      <Text style={styles.statLabel}>{label}</Text>
-    </View>
-  );
-}
-
 const styles = StyleSheet.create({
   screen: { flex: 1, backgroundColor: colors.cream },
   content: { paddingHorizontal: 20, paddingTop: 18, paddingBottom: 34 },
-  eyebrow: { color: colors.clay, fontSize: 10, fontWeight: '800', letterSpacing: 1.6 },
-  title: { maxWidth: 360, marginTop: 9, color: colors.forestDeep, fontFamily: 'serif', fontSize: 34, lineHeight: 38, letterSpacing: -0.9 },
-  statsCard: { marginTop: 20, paddingVertical: 16, flexDirection: 'row', alignItems: 'center', borderRadius: 21, backgroundColor: colors.forest },
-  stat: { flex: 1, alignItems: 'center' },
-  statValue: { color: colors.paper, fontFamily: 'serif', fontSize: 23, fontWeight: '700' },
-  statLabel: { marginTop: 3, color: 'rgba(255,250,242,0.68)', fontSize: 9 },
-  statDivider: { width: StyleSheet.hairlineWidth, height: 34, backgroundColor: 'rgba(255,255,255,0.22)' },
+  title: { marginTop: 8, color: colors.forestDeep, fontFamily: 'serif', fontSize: 31, lineHeight: 35 },
+  pageSubtitle: { marginTop: 3, color: colors.inkMuted, fontSize: 12 },
   searchBox: { minHeight: 54, marginTop: 18, paddingHorizontal: 15, flexDirection: 'row', alignItems: 'center', borderWidth: StyleSheet.hairlineWidth, borderColor: colors.line, borderRadius: 17, backgroundColor: colors.paper },
   searchIcon: { width: 28, color: colors.forest, fontSize: 25 },
   searchInput: { flex: 1, height: 52, color: colors.forestDeep, fontSize: 13 },

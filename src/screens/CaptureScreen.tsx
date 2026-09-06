@@ -10,6 +10,7 @@ import { colors, radii } from '../theme';
 import type { CapturePhase } from '../types';
 
 type CaptureScreenProps = {
+  elderArabic?: boolean;
   phase: CapturePhase;
   onBack: () => void;
   onBegin: () => void;
@@ -21,15 +22,14 @@ type CaptureScreenProps = {
 export function CaptureScreen(props: CaptureScreenProps) {
   if (props.phase === 'camera') return <NativeCamera onBack={props.onRetake} onRecorded={props.onRecorded} />;
   if (props.phase === 'analysis') return <AnalysisScreen />;
-  if (props.phase === 'result') return <ResultScreen onBack={props.onBack} onRetake={props.onRetake} onSave={props.onSave} />;
+  if (props.phase === 'result') return <ResultScreen arabic={props.elderArabic} onBack={props.onBack} onRetake={props.onRetake} onSave={props.onSave} />;
 
   return (
     <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false} style={styles.screen}>
-      <SubscreenHeader title="Capture a recipe" subtitle="Grandma can simply cook as usual" onBack={props.onBack} />
-      <Text style={styles.eyebrow}>A QUIET AI APPRENTICE</Text>
-      <Text style={styles.title}>Keep the phone nearby. Let the memory unfold.</Text>
+      <SubscreenHeader title="Capture a recipe" subtitle="The family cook can simply cook as usual" onBack={props.onBack} />
+      <Text style={styles.title}>Record the family cook</Text>
       <Text style={styles.body}>
-        Mirath watches for actions and textures while preserving the original voice. It asks questions only after the cooking is finished.
+        She can speak naturally in Arabic or English. You will review the recipe together afterwards.
       </Text>
 
       <View style={styles.introArt}>
@@ -40,11 +40,11 @@ export function CaptureScreen(props: CaptureScreenProps) {
       </View>
 
       <View style={styles.tipList}>
-        <Tip number="1" text="Keep the ingredients and hands visible when possible." />
-        <Tip number="2" text="Speak naturally in Arabic, English or your family dialect." />
-        <Tip number="3" text="Mirath will mark uncertain quantities for confirmation." />
+        <Tip number="1" text="Keep the ingredients and bowl in view." />
+        <Tip number="2" text="Speak naturally—no script is needed." />
+        <Tip number="3" text="You can correct every step before saving." />
       </View>
-      <PrimaryButton onPress={props.onBegin}>Begin demonstration</PrimaryButton>
+      <PrimaryButton onPress={props.onBegin}>Open camera</PrimaryButton>
     </ScrollView>
   );
 }
@@ -79,7 +79,7 @@ function NativeCamera({ onBack, onRecorded }: { onBack: () => void; onRecorded: 
       const result = await cameraRef.current.recordAsync({ maxDuration: 120 });
       onRecorded(result?.uri);
     } catch {
-      Alert.alert('Recording stopped', 'Mirath could not keep this recording. Please try again.');
+      Alert.alert('Recording stopped', 'Hekaya Kitchen could not keep this recording. Please try again.');
       setRecording(false);
     }
   }
@@ -100,7 +100,7 @@ function NativeCamera({ onBack, onRecorded }: { onBack: () => void; onRecorded: 
         <BrandMark size={64} />
         <Text style={styles.permissionTitle}>Camera and microphone access</Text>
         <Text style={styles.permissionCopy}>
-          Mirath needs both to preserve the cooking demonstration and the cook's original voice.
+          Hekaya Kitchen needs both to save the cooking demonstration and the cook's original voice.
         </Text>
         <PrimaryButton
           onPress={() => {
@@ -133,21 +133,15 @@ function NativeCamera({ onBack, onRecorded }: { onBack: () => void; onRecorded: 
         </Pressable>
         <View style={styles.liveBadge}>
           <View style={[styles.liveDot, !recording && styles.liveDotIdle]} />
-          <Text style={styles.liveText}>{recording ? 'Mirath is observing' : 'Ready to capture'}</Text>
+          <Text style={styles.liveText}>{recording ? 'Recording your lesson' : 'Ready to record'}</Text>
         </View>
         <Text style={styles.timer}>{formatDuration(elapsed)}</Text>
       </View>
       <View style={styles.focusFrame} />
-      {recording ? (
-        <View style={styles.detectedRow}>
-          <DetectedChip text="Hands in view" />
-          <DetectedChip text="Voice detected" />
-          <DetectedChip text="Mixing action" />
-        </View>
-      ) : null}
+      {recording ? <View style={styles.detectedRow}><DetectedChip text="Original voice is being preserved" /></View> : null}
       <View style={styles.cameraBottom}>
         <Text style={styles.cameraHint}>
-          {recording ? 'Keep cooking naturally—no need to explain every detail.' : 'Frame the hands and ingredients, then tap record.'}
+          {recording ? 'Speak naturally—Arabic and English are both welcome.' : 'Frame your demonstration, then tap record.'}
         </Text>
         <Pressable
           accessibilityLabel={recording ? 'Stop recording' : 'Start recording'}
@@ -169,49 +163,121 @@ function AnalysisScreen() {
         <View style={styles.analysisDashed} />
         <BrandMark size={72} />
       </View>
-      <Text style={styles.analysisTitle}>Finding the unwritten details</Text>
+      <Text style={styles.analysisTitle}>Preparing your recipe</Text>
       <Text style={styles.analysisCopy}>
-        Mirath is separating the steps, listening for family stories and saving the moments where “it looks right.”
+        Transcribing the recording and organising the cooking steps.
       </Text>
       <View style={styles.analysisList}>
-        <AnalysisRow complete text="Cooking actions detected" />
+        <AnalysisRow complete text="Arabic and English transcript created" />
         <AnalysisRow complete text="Original voice preserved" />
-        <AnalysisRow text="Building visual checkpoints…" />
+        <AnalysisRow text="Checking details to review…" />
       </View>
     </View>
   );
 }
 
-function ResultScreen({ onBack, onRetake, onSave }: { onBack: () => void; onRetake: () => void; onSave: () => void }) {
+function ResultScreen({ arabic = false, onBack, onRetake, onSave }: { arabic?: boolean; onBack: () => void; onRetake: () => void; onSave: () => void }) {
+  const [reviewIndex, setReviewIndex] = useState(0);
+  const [voiceEditing, setVoiceEditing] = useState(false);
+  const [corrected, setCorrected] = useState(() => new Set<string>());
+  const [skipped, setSkipped] = useState(() => new Set<string>());
+  const corrections: Record<string, string> = {
+    'Step 3': 'Keep it covered until the dough is rounded and tiny bubbles cover the surface.',
+    'Step 5': 'Turn gently more than once so every side reaches an even deep gold.',
+  };
+  const complete = reviewIndex >= extractedSteps.length;
+  const step = extractedSteps[Math.min(reviewIndex, extractedSteps.length - 1)]!;
+  const arabicSteps: Record<string, { title: string; detail: string }> = {
+    'Step 1': { title: 'اخلطي العجين', detail: 'اخلطي الدقيق والخميرة والزعفران والماء الدافئ باليد.' },
+    'Step 2': { title: 'افحصي القوام', detail: 'يجب أن يكون العجين طرياً ويسقط من اليد كشريط سميك.' },
+    'Step 3': { title: 'اتركيه يتخمر', detail: 'غطي العجين حتى يمتلئ سطحه بالفقاعات الصغيرة.' },
+    'Step 4': { title: 'شكّلي اللقيمات', detail: 'بللي يدك وخذي قطعاً صغيرة متساوية.' },
+    'Step 5': { title: 'اقلِي حتى يصبح ذهبياً', detail: 'قلّبي اللقيمات برفق حتى يصبح لونها ذهبياً من كل الجهات.' },
+  };
+  const displayedStep = arabic ? arabicSteps[step.index] : undefined;
+
+  function confirmStep(useVoiceCorrection = false) {
+    if (useVoiceCorrection) setCorrected((current) => new Set(current).add(step.index));
+    setSkipped((current) => {
+      const next = new Set(current);
+      next.delete(step.index);
+      return next;
+    });
+    setVoiceEditing(false);
+    setReviewIndex((current) => current + 1);
+  }
+
+  function skipStep() {
+    setSkipped((current) => new Set(current).add(step.index));
+    setReviewIndex((current) => current + 1);
+  }
+
   return (
     <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false} style={styles.screen}>
-      <SubscreenHeader title="Your living recipe" subtitle="Captured from Grandma Fatima" onBack={onBack} />
-      <View style={styles.resultBanner}>
-        <View style={styles.resultIcon}><Text style={styles.resultIconText}>✓</Text></View>
-        <View style={styles.flexOne}>
-          <Text style={styles.resultTitle}>Mirath found 5 teachable moments</Text>
-          <Text style={styles.resultCopy}>Review uncertain details with Grandma before saving.</Text>
+      <SubscreenHeader title={arabic ? 'مراجعة الوصفة' : 'Review recipe'} subtitle={complete ? (arabic ? 'جاهزة للحفظ' : 'Ready to save') : (arabic ? `السؤال ${reviewIndex + 1} من ${extractedSteps.length}` : `Question ${reviewIndex + 1} of ${extractedSteps.length}`)} onBack={onBack} />
+
+      {complete ? (
+        <View>
+          <View style={styles.reviewCompleteIcon}><Text style={styles.reviewCompleteCheck}>✓</Text></View>
+          <Text style={styles.reviewCompleteTitle}>{arabic ? (skipped.size ? `${skipped.size} تفاصيل ما زالت تحتاج للمراجعة` : 'تمت مراجعة الوصفة') : (skipped.size ? `${skipped.size} ${skipped.size === 1 ? 'detail' : 'details'} still need review` : 'The recipe has been reviewed')}</Text>
+          <Text style={styles.reviewCompleteCopy}>{arabic ? `تم تأكيد ${extractedSteps.length - skipped.size} خطوات · تم تصحيح ${corrected.size} بالصوت` : `${extractedSteps.length - skipped.size} steps confirmed · ${corrected.size} corrected by voice`}</Text>
+          {!skipped.size ? (
+            <>
+              <View style={styles.materialsCard}>
+                <Text style={styles.materialsLabel}>{arabic ? 'المكونات' : 'INGREDIENTS'}</Text>
+                <Text style={[styles.materialsText, arabic && styles.rtlText]}>{arabic ? 'دقيق · خميرة · زعفران · ماء دافئ · دبس تمر' : 'Flour · yeast · saffron · warm water · date syrup'}</Text>
+                <Text style={[styles.materialsNote, arabic && styles.rtlText]}>{arabic ? 'لم نخمن الكميات. يمكن إضافتها لاحقاً.' : 'No amounts were guessed. They can be added later.'}</Text>
+              </View>
+              <View style={styles.languageCard}>
+                <Text style={[styles.languageTitle, arabic && styles.rtlText]}>{arabic ? 'الكلام العربي الأصلي والترجمة الإنجليزية جاهزان' : 'Arabic original and English translation ready'}</Text>
+                <Text style={[styles.languageCopy, arabic && styles.rtlText]}>{arabic ? 'سيبقى التسجيل الأصلي مع الوصفة.' : 'The original recording will stay with the recipe.'}</Text>
+              </View>
+              <PrimaryButton onPress={onSave}>{arabic ? 'حفظ وصفة العائلة' : 'Save family recipe'}</PrimaryButton>
+            </>
+          ) : (
+            <PrimaryButton onPress={() => { setReviewIndex(0); setSkipped(new Set()); }}>{arabic ? 'مراجعة التفاصيل المتبقية' : 'Review remaining details'}</PrimaryButton>
+          )}
+          <SecondaryButton onPress={() => { setReviewIndex(0); setSkipped(new Set()); }} style={styles.reviewAgain}>{arabic ? 'بدء المراجعة من جديد' : 'Start review again'}</SecondaryButton>
         </View>
-      </View>
-      <View style={styles.confidenceCard}>
-        <View style={styles.confidenceTop}><Text style={styles.confidenceLabel}>Recipe confidence</Text><Text style={styles.confidenceLabel}>86%</Text></View>
-        <View style={styles.confidenceTrack}><View style={styles.confidenceFill} /></View>
-      </View>
-      <Text style={styles.listHeading}>What Mirath understood</Text>
-      <Text style={styles.listSubheading}>The demonstration has become a first draft</Text>
-      <View style={styles.stepList}>
-        {extractedSteps.map((step) => (
-          <View key={step.index} style={styles.stepCard}>
-            <View style={styles.stepTopline}><Text style={styles.stepIndex}>{step.index}</Text><Text style={styles.insight}>{step.insight}</Text></View>
-            <Text style={styles.stepTitle}>{step.title}</Text>
-            <Text style={styles.stepCopy}>{step.detail}</Text>
+      ) : (
+        <View>
+          <View style={styles.reviewProgress}>
+            {extractedSteps.map((item, index) => <View key={item.index} style={[styles.reviewProgressPart, index <= reviewIndex && styles.reviewProgressActive]} />)}
           </View>
-        ))}
-      </View>
-      <View style={styles.buttonRow}>
-        <SecondaryButton onPress={onRetake} style={styles.flexOne}>Retake</SecondaryButton>
-        <PrimaryButton onPress={onSave} style={styles.flexOne}>Save recipe</PrimaryButton>
-      </View>
+          <Pressable accessibilityRole="button" style={styles.originalClip}>
+            <View style={styles.clipPlay}><Text style={styles.clipPlayText}>▶</Text></View>
+            <View style={styles.flexOne}>
+              <Text style={[styles.clipTitle, arabic && styles.rtlText]}>{arabic ? 'شغّلي كلامك الأصلي' : "Play the cook's original words"}</Text>
+              <Text style={[styles.clipCopy, arabic && styles.rtlText]}>{arabic ? 'العربية · ١٢ ثانية' : 'Arabic · 12 seconds'}</Text>
+            </View>
+          </Pressable>
+
+          <View style={styles.reviewCard}>
+            <Text style={styles.reviewStep}>{arabic ? `الخطوة ${reviewIndex + 1}` : step.index}</Text>
+            <Text style={[styles.reviewTitle, arabic && styles.rtlText]}>{displayedStep?.title ?? step.title}</Text>
+            <Text style={[styles.reviewDetail, arabic && styles.rtlText]}>{displayedStep?.detail ?? (corrected.has(step.index) && corrections[step.index] ? corrections[step.index] : step.detail)}</Text>
+            {step.insight === 'Needs confirmation' ? <Text style={styles.needsHelp}>{arabic ? 'يرجى التأكد من هذه المعلومة' : 'Please check this detail'}</Text> : null}
+          </View>
+
+          <Text style={styles.reviewQuestion}>{voiceEditing ? (arabic ? 'قولي التصحيح بصوتك' : 'Say the correction aloud') : (arabic ? 'هل هذا صحيح؟' : 'Is this correct?')}</Text>
+          {voiceEditing ? (
+            <View style={styles.listeningCard}>
+              <View style={styles.listeningDot} />
+              <Text style={styles.listeningText}>{arabic ? 'جاهز لتسجيل تصحيحك' : 'Voice correction ready to record'}</Text>
+            </View>
+          ) : null}
+          <PrimaryButton onPress={() => voiceEditing ? confirmStep(true) : confirmStep()}>
+            {voiceEditing ? (arabic ? 'حفظ التصحيح الصوتي' : 'Save voice correction') : (arabic ? 'نعم، صحيح' : 'Yes, correct')}
+          </PrimaryButton>
+          <SecondaryButton onPress={() => setVoiceEditing((value) => !value)} style={styles.voiceButton}>
+            {voiceEditing ? (arabic ? 'إلغاء' : 'Cancel') : (arabic ? 'التصحيح بالصوت' : 'Change by voice')}
+          </SecondaryButton>
+          <Pressable onPress={skipStep} style={styles.reviewLater}>
+            <Text style={styles.reviewLaterText}>{arabic ? 'اسألني لاحقاً' : 'Ask me later'}</Text>
+          </Pressable>
+          {reviewIndex === 0 ? <SecondaryButton onPress={onRetake} style={styles.retakeButton}>{arabic ? 'التسجيل مرة أخرى' : 'Record again'}</SecondaryButton> : null}
+        </View>
+      )}
     </ScrollView>
   );
 }
@@ -294,8 +360,14 @@ const styles = StyleSheet.create({
   confidenceCard: { marginVertical: 22, padding: 15, borderWidth: StyleSheet.hairlineWidth, borderColor: colors.line, borderRadius: 17, backgroundColor: colors.paper },
   confidenceTop: { marginBottom: 10, flexDirection: 'row', justifyContent: 'space-between' },
   confidenceLabel: { color: colors.forestDeep, fontSize: 11, fontWeight: '700' },
-  confidenceTrack: { height: 7, overflow: 'hidden', borderRadius: 4, backgroundColor: colors.sagePale },
-  confidenceFill: { width: '86%', height: 7, borderRadius: 4, backgroundColor: colors.forest },
+  reviewStatus: { color: colors.clay, fontSize: 13, fontWeight: '800' },
+  languageCard: { marginBottom: 22, padding: 15, borderRadius: 17, backgroundColor: colors.clayPale },
+  languageTitle: { color: colors.forestDeep, fontSize: 12, fontWeight: '800' },
+  languageCopy: { marginTop: 4, color: colors.inkMuted, fontSize: 11 },
+  materialsCard: { marginBottom: 22, padding: 15, borderWidth: StyleSheet.hairlineWidth, borderColor: colors.line, borderRadius: 17, backgroundColor: colors.paper },
+  materialsLabel: { color: colors.clay, fontSize: 9, fontWeight: '800', letterSpacing: 1.1 },
+  materialsText: { marginTop: 7, color: colors.forestDeep, fontSize: 12, fontWeight: '700', lineHeight: 18 },
+  materialsNote: { marginTop: 5, color: colors.inkMuted, fontSize: 10, lineHeight: 15 },
   listHeading: { color: colors.forestDeep, fontSize: 16, fontWeight: '800' },
   listSubheading: { marginTop: 4, color: colors.inkMuted, fontSize: 11 },
   stepList: { marginTop: 14, gap: 11 },
@@ -305,5 +377,34 @@ const styles = StyleSheet.create({
   insight: { paddingHorizontal: 8, paddingVertical: 6, overflow: 'hidden', borderRadius: 8, color: colors.clay, backgroundColor: colors.clayPale, fontSize: 9, fontWeight: '800' },
   stepTitle: { marginTop: 9, color: colors.forestDeep, fontSize: 14, fontWeight: '800' },
   stepCopy: { marginTop: 5, color: colors.inkMuted, fontSize: 12, lineHeight: 17 },
+  confirmAction: { marginTop: 12, color: colors.clay, fontSize: 11, fontWeight: '800' },
+  confirmedAction: { color: colors.forest },
   buttonRow: { marginTop: 20, flexDirection: 'row', gap: 10 },
+  reviewProgress: { marginBottom: 18, flexDirection: 'row', gap: 6 },
+  reviewProgressPart: { flex: 1, height: 7, borderRadius: 4, backgroundColor: colors.sagePale },
+  reviewProgressActive: { backgroundColor: colors.forest },
+  originalClip: { minHeight: 72, padding: 13, flexDirection: 'row', alignItems: 'center', gap: 12, borderRadius: 19, backgroundColor: colors.clayPale },
+  clipPlay: { width: 46, height: 46, alignItems: 'center', justifyContent: 'center', borderRadius: 23, backgroundColor: colors.forest },
+  clipPlayText: { marginLeft: 2, color: colors.white, fontSize: 14 },
+  clipTitle: { color: colors.forestDeep, fontSize: 14, fontWeight: '800' },
+  clipCopy: { marginTop: 4, color: colors.inkMuted, fontSize: 11 },
+  reviewCard: { minHeight: 245, marginTop: 17, padding: 23, justifyContent: 'center', borderWidth: StyleSheet.hairlineWidth, borderColor: colors.line, borderRadius: 27, backgroundColor: colors.paper },
+  reviewStep: { color: colors.clay, fontSize: 12, fontWeight: '800', letterSpacing: 1 },
+  reviewTitle: { marginTop: 11, color: colors.forestDeep, fontFamily: 'serif', fontSize: 29, lineHeight: 33 },
+  reviewDetail: { marginTop: 13, color: colors.inkMuted, fontSize: 17, lineHeight: 26 },
+  needsHelp: { alignSelf: 'flex-start', marginTop: 17, paddingHorizontal: 11, paddingVertical: 8, overflow: 'hidden', borderRadius: 10, color: colors.clay, backgroundColor: colors.clayPale, fontSize: 11, fontWeight: '800' },
+  reviewQuestion: { marginVertical: 18, color: colors.forestDeep, fontSize: 20, fontWeight: '800', textAlign: 'center' },
+  listeningCard: { marginBottom: 12, minHeight: 58, paddingHorizontal: 15, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 10, borderRadius: 17, backgroundColor: colors.clayPale },
+  listeningDot: { width: 12, height: 12, borderRadius: 6, backgroundColor: colors.danger },
+  listeningText: { color: colors.forestDeep, fontSize: 13, fontWeight: '800' },
+  voiceButton: { marginTop: 10 },
+  reviewLater: { minHeight: 48, alignItems: 'center', justifyContent: 'center' },
+  reviewLaterText: { color: colors.inkMuted, fontSize: 13, textDecorationLine: 'underline' },
+  retakeButton: { marginTop: 4 },
+  reviewCompleteIcon: { alignSelf: 'center', width: 74, height: 74, alignItems: 'center', justifyContent: 'center', borderRadius: 37, backgroundColor: colors.sagePale },
+  reviewCompleteCheck: { color: colors.forest, fontSize: 34, fontWeight: '800' },
+  reviewCompleteTitle: { marginTop: 20, color: colors.forestDeep, fontFamily: 'serif', fontSize: 31, lineHeight: 35, textAlign: 'center' },
+  reviewCompleteCopy: { marginTop: 8, marginBottom: 22, color: colors.inkMuted, fontSize: 13, textAlign: 'center' },
+  reviewAgain: { marginTop: 10 },
+  rtlText: { textAlign: 'right', writingDirection: 'rtl' },
 });

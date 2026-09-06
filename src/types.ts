@@ -1,4 +1,4 @@
-export type AppScreen = 'home' | 'recipes' | 'capture' | 'family' | 'recipe' | 'lesson';
+export type AppScreen = 'home' | 'recipes' | 'capture' | 'family' | 'recipe' | 'lesson' | 'attempt' | 'together' | 'elder' | 'elderReply';
 
 export type CapturePhase = 'intro' | 'camera' | 'analysis' | 'result';
 
@@ -28,7 +28,8 @@ export type Recipe = {
   duration: string;
   checkpointCount: number;
   storyCount: number;
-  confidence: number;
+  confirmedSteps: number;
+  detailsToConfirm: number;
   accent: string;
   accentDeep: string;
   art: 'dumplings' | 'grain' | 'rice' | 'bread' | 'noodles';

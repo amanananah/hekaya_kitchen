@@ -14,9 +14,10 @@ type LessonScreenProps = {
   onBack: () => void;
   onNext: () => void;
   onFinish: () => void;
+  togetherMode?: boolean;
 };
 
-export function LessonScreen({ recipe, step, onBack, onNext, onFinish }: LessonScreenProps) {
+export function LessonScreen({ recipe, step, onBack, onNext, onFinish, togetherMode = false }: LessonScreenProps) {
   const [showFamilyTip, setShowFamilyTip] = useState(false);
   const totalSteps = recipe.lesson.steps.length;
   const currentStep = recipe.lesson.steps[Math.min(step - 1, totalSteps - 1)]!;
@@ -29,14 +30,16 @@ export function LessonScreen({ recipe, step, onBack, onNext, onFinish }: LessonS
     return (
       <View style={styles.completeScreen}>
         <BrandMark size={76} />
-        <Text style={styles.completeEyebrow}>GUIDED COOK COMPLETE</Text>
-        <Text style={styles.completeTitle}>You carried it forward.</Text>
+        <Text style={styles.completeEyebrow}>{togetherMode ? 'FAMILY COOK COMPLETE' : 'GUIDED COOK COMPLETE'}</Text>
+        <Text style={styles.completeTitle}>{togetherMode ? 'Dinner made together.' : 'You carried it forward.'}</Text>
         <Text style={styles.completeCopy}>
-          Your first {recipe.name} attempt is ready to send to {recipe.keeper} for a voice review.
+          {togetherMode
+            ? `Save a group photo from today's cook and send it to ${recipe.keeper}.`
+            : `Share a photo or voice message with ${recipe.keeper}. Their response will become part of this family lesson.`}
         </Text>
         <View style={styles.buttonRow}>
           <SecondaryButton onPress={onBack} style={styles.flexOne}>Back to recipe</SecondaryButton>
-          <PrimaryButton onPress={onFinish} style={styles.flexOne}>Save attempt</PrimaryButton>
+          <PrimaryButton onPress={onFinish} style={styles.flexOne}>Share my attempt</PrimaryButton>
         </View>
       </View>
     );
@@ -44,7 +47,16 @@ export function LessonScreen({ recipe, step, onBack, onNext, onFinish }: LessonS
 
   return (
     <ScrollView contentContainerStyle={styles.screenContent} showsVerticalScrollIndicator={false} style={styles.screen}>
-      <SubscreenHeader title="Guided Cook" subtitle={`Learning from ${recipe.keeper} · Step ${step} of ${totalSteps}`} onBack={onBack} />
+      <SubscreenHeader title={togetherMode ? 'Cook together' : 'Guided Cook'} subtitle={`${recipe.keeper} · Step ${step} of ${totalSteps}`} onBack={onBack} />
+      {togetherMode ? (
+        <View style={styles.togetherBanner}>
+          <View style={styles.togetherDot} />
+          <View style={styles.flexOne}>
+            <Text style={styles.togetherTitle}>Cooking together · 3 joined</Text>
+            <Text style={styles.togetherCopy}>{step < 4 ? 'Your job: mix and check the dough' : 'Saeed’s job: syrup and serving'}</Text>
+          </View>
+        </View>
+      ) : null}
       <View style={styles.progressRow}>
         {recipe.lesson.steps.map((item, index) => (
           <View key={item.title} style={[styles.progress, index < step && styles.progressComplete]} />
@@ -59,10 +71,10 @@ export function LessonScreen({ recipe, step, onBack, onNext, onFinish }: LessonS
         </View>
       </View>
       <View style={styles.coachNote}>
-        <View style={styles.sparkBox}><Text style={styles.spark}>✦</Text></View>
+        <View style={styles.sparkBox}><Text style={styles.spark}>▶</Text></View>
         <Text style={styles.coachCopy}>
-          <Text style={styles.coachStrong}>Mirath sees a close match.{`\n`}</Text>
-          {currentStep.coach}
+          <Text style={styles.coachStrong}>Play {recipe.keeper}'s original voice{`\n`}</Text>
+          Listen to how they describe this moment, then compare it yourself.
         </Text>
       </View>
       {showFamilyTip ? (
@@ -73,12 +85,12 @@ export function LessonScreen({ recipe, step, onBack, onNext, onFinish }: LessonS
       ) : null}
       <View style={styles.buttonRow}>
         <SecondaryButton onPress={() => setShowFamilyTip((value) => !value)} style={styles.flexOne}>
-          {showFamilyTip ? 'Hide family tip' : 'Show family tip'}
+          {showFamilyTip ? 'Hide reply' : `Ask ${recipe.keeper.replace('Grandma ', '')}`}
         </SecondaryButton>
-        <PrimaryButton onPress={onNext} style={styles.flexOne}>{step === totalSteps ? 'Finish lesson' : 'Looks right'}</PrimaryButton>
+        <PrimaryButton onPress={onNext} style={styles.flexOne}>{step === totalSteps ? 'Finish lesson' : 'I checked this step'}</PrimaryButton>
       </View>
       <Pressable accessibilityRole="button" onPress={onNext} style={styles.accessibleHint}>
-        <Text style={styles.accessibleHintText}>Continue without camera comparison</Text>
+        <Text style={styles.accessibleHintText}>Skip this step for now</Text>
       </Pressable>
     </ScrollView>
   );
@@ -88,6 +100,10 @@ const styles = StyleSheet.create({
   screen: { flex: 1, backgroundColor: colors.cream },
   screenContent: { paddingHorizontal: 20, paddingTop: 18, paddingBottom: 28 },
   progressRow: { flexDirection: 'row', gap: 6, marginBottom: 24 },
+  togetherBanner: { marginBottom: 14, padding: 13, flexDirection: 'row', alignItems: 'center', gap: 10, borderRadius: 17, backgroundColor: colors.sagePale },
+  togetherDot: { width: 10, height: 10, borderRadius: 5, backgroundColor: colors.forest },
+  togetherTitle: { color: colors.forestDeep, fontSize: 12, fontWeight: '800' },
+  togetherCopy: { marginTop: 3, color: colors.inkMuted, fontSize: 10 },
   progress: { flex: 1, height: 6, borderRadius: 3, backgroundColor: colors.sagePale },
   progressComplete: { backgroundColor: colors.forest },
   checkpoint: { minHeight: 330, padding: 24, overflow: 'hidden', borderRadius: 29, backgroundColor: colors.forest },
