@@ -6,12 +6,15 @@
 | --- | --- | --- | --- |
 | 2026-09-03 | working tree | `pnpm typecheck` | Pass |
 | 2026-09-03 | working tree | Expo public configuration parse | Pass |
+| 2026-09-06 | real-video preview | `pnpm typecheck` | Pass |
+| 2026-09-06 | real-video preview | Expo public configuration parse with camera and video plugins | Pass |
 
 ## Manual demonstration checklist
 
 - [ ] Camera and microphone permission accepted
 - [ ] Permission denial returns safely to capture intro
 - [ ] A new video can be recorded and stopped
+- [ ] The exact captured video plays on the check-your-recording screen with audible voice
 - [ ] Processing state appears before the lesson draft
 - [ ] Elder review shows one large question at a time
 - [ ] Voice correction and Ask Me Later paths work

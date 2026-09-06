@@ -1,6 +1,6 @@
 export type AppScreen = 'home' | 'recipes' | 'capture' | 'family' | 'recipe' | 'lesson' | 'attempt' | 'together' | 'elder' | 'elderReply';
 
-export type CapturePhase = 'intro' | 'camera' | 'analysis' | 'result';
+export type CapturePhase = 'intro' | 'camera' | 'preview' | 'analysis' | 'result';
 
 export type FamilyMember = {
   initials: string;

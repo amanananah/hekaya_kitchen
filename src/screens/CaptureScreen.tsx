@@ -1,6 +1,7 @@
 import { CameraView, useCameraPermissions, useMicrophonePermissions } from 'expo-camera';
-import { useEffect, useRef, useState } from 'react';
-import { Alert, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { useVideoPlayer, VideoView } from 'expo-video';
+import React, { useEffect, useRef, useState } from 'react';
+import { Alert, Platform, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 
 import { BrandMark } from '../components/BrandMark';
 import { PrimaryButton, SecondaryButton } from '../components/Buttons';
@@ -17,19 +18,25 @@ type CaptureScreenProps = {
   onRecorded: (uri?: string) => void;
   onRetake: () => void;
   onSave: () => void;
+  onUseRecording: () => void;
+  recordingUri: string | null;
 };
 
 export function CaptureScreen(props: CaptureScreenProps) {
-  if (props.phase === 'camera') return <NativeCamera onBack={props.onRetake} onRecorded={props.onRecorded} />;
+  if (props.phase === 'camera') {
+    if (Platform.OS === 'web') return <WebCamera onBack={props.onRetake} onRecorded={props.onRecorded} />;
+    return <NativeCamera onBack={props.onRetake} onRecorded={props.onRecorded} />;
+  }
+  if (props.phase === 'preview' && props.recordingUri) return <RecordingPreview onRetake={props.onRetake} onUseRecording={props.onUseRecording} uri={props.recordingUri} />;
   if (props.phase === 'analysis') return <AnalysisScreen />;
-  if (props.phase === 'result') return <ResultScreen arabic={props.elderArabic} onBack={props.onBack} onRetake={props.onRetake} onSave={props.onSave} />;
+  if (props.phase === 'result') return <ResultScreen arabic={props.elderArabic} onBack={props.onBack} onRetake={props.onRetake} onSave={props.onSave} recordingUri={props.recordingUri} />;
 
   return (
     <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false} style={styles.screen}>
       <SubscreenHeader title="Capture a recipe" subtitle="The family cook can simply cook as usual" onBack={props.onBack} />
       <Text style={styles.title}>Record the family cook</Text>
       <Text style={styles.body}>
-        She can speak naturally in Arabic or English. You will review the recipe together afterwards.
+        They can speak naturally in Arabic or English. You will review the recipe together afterwards.
       </Text>
 
       <View style={styles.introArt}>
@@ -56,6 +63,7 @@ function NativeCamera({ onBack, onRecorded }: { onBack: () => void; onRecorded: 
   const [ready, setReady] = useState(false);
   const [recording, setRecording] = useState(false);
   const [elapsed, setElapsed] = useState(0);
+  const discardRecording = useRef(false);
 
   useEffect(() => {
     let interval: ReturnType<typeof setInterval> | undefined;
@@ -74,10 +82,14 @@ function NativeCamera({ onBack, onRecorded }: { onBack: () => void; onRecorded: 
   async function startRecording() {
     if (!cameraRef.current || !ready || recording) return;
     setElapsed(0);
+    discardRecording.current = false;
     setRecording(true);
     try {
-      const result = await cameraRef.current.recordAsync({ maxDuration: 120 });
-      onRecorded(result?.uri);
+      const result = await cameraRef.current.recordAsync({ maxDuration: 300 });
+      setRecording(false);
+      if (discardRecording.current) return;
+      if (!result?.uri) throw new Error('Recording URI was not returned');
+      onRecorded(result.uri);
     } catch {
       Alert.alert('Recording stopped', 'Hekaya Kitchen could not keep this recording. Please try again.');
       setRecording(false);
@@ -88,6 +100,12 @@ function NativeCamera({ onBack, onRecorded }: { onBack: () => void; onRecorded: 
     if (!recording) return;
     cameraRef.current?.stopRecording();
     setRecording(false);
+  }
+
+  function cancelRecording() {
+    discardRecording.current = true;
+    if (recording) cameraRef.current?.stopRecording();
+    onBack();
   }
 
   if (!cameraPermission || !microphonePermission) {
@@ -128,16 +146,20 @@ function NativeCamera({ onBack, onRecorded }: { onBack: () => void; onRecorded: 
       />
       <View style={styles.cameraShade} />
       <View style={styles.cameraTop}>
-        <Pressable accessibilityLabel="Cancel recording" onPress={onBack} style={styles.cameraBack}>
+        <Pressable accessibilityLabel="Cancel recording" onPress={cancelRecording} style={styles.cameraBack}>
           <Text style={styles.cameraBackText}>×</Text>
         </Pressable>
         <View style={styles.liveBadge}>
           <View style={[styles.liveDot, !recording && styles.liveDotIdle]} />
-          <Text style={styles.liveText}>{recording ? 'Recording your lesson' : 'Ready to record'}</Text>
+          <Text style={styles.liveText}>{recording ? 'Recording Luqaimat' : 'Ready for Luqaimat'}</Text>
         </View>
         <Text style={styles.timer}>{formatDuration(elapsed)}</Text>
       </View>
       <View style={styles.focusFrame} />
+      <View style={styles.demoCue}>
+        <Text style={styles.demoCueTitle}>LUQAIMAT DEMO</Text>
+        <Text style={styles.demoCueText}>Show the dough, shaping, frying, or finished plate.</Text>
+      </View>
       {recording ? <View style={styles.detectedRow}><DetectedChip text="Original voice is being preserved" /></View> : null}
       <View style={styles.cameraBottom}>
         <Text style={styles.cameraHint}>
@@ -152,6 +174,189 @@ function NativeCamera({ onBack, onRecorded }: { onBack: () => void; onRecorded: 
           <View style={recording ? styles.stopInner : styles.recordInner} />
         </Pressable>
       </View>
+    </View>
+  );
+}
+
+// expo-camera does not support video recording on web, so we use the browser's
+// MediaRecorder API directly. The preview and recording UI match the native flow.
+function WebCamera({ onBack, onRecorded }: { onBack: () => void; onRecorded: (uri?: string) => void }) {
+  const videoRef = useRef<HTMLVideoElement | null>(null);
+  const streamRef = useRef<MediaStream | null>(null);
+  const recorderRef = useRef<MediaRecorder | null>(null);
+  const chunksRef = useRef<Blob[]>([]);
+  const discardRef = useRef(false);
+  const [status, setStatus] = useState<'starting' | 'denied' | 'ready'>('starting');
+  const [recording, setRecording] = useState(false);
+  const [elapsed, setElapsed] = useState(0);
+
+  useEffect(() => {
+    let interval: ReturnType<typeof setInterval> | undefined;
+    if (recording) interval = setInterval(() => setElapsed((value) => value + 1), 1000);
+    return () => { if (interval) clearInterval(interval); };
+  }, [recording]);
+
+  async function startStream() {
+    if (!navigator.mediaDevices?.getUserMedia) {
+      setStatus('denied');
+      return;
+    }
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({
+        video: { facingMode: 'environment', width: { ideal: 1280 } },
+        audio: true,
+      });
+      streamRef.current = stream;
+      if (videoRef.current) {
+        videoRef.current.srcObject = stream;
+        void videoRef.current.play().catch(() => {});
+      }
+      setStatus('ready');
+    } catch {
+      setStatus('denied');
+    }
+  }
+
+  useEffect(() => {
+    void startStream();
+    return () => {
+      streamRef.current?.getTracks().forEach((track) => track.stop());
+      streamRef.current = null;
+    };
+  }, []);
+
+  function startRecording() {
+    const stream = streamRef.current;
+    if (!stream || recording || status !== 'ready') return;
+    setElapsed(0);
+    discardRef.current = false;
+    chunksRef.current = [];
+    const mimeTypes = ['video/mp4', 'video/webm;codecs=vp9', 'video/webm;codecs=vp8', 'video/webm'];
+    const mimeType = mimeTypes.find((type) => MediaRecorder.isTypeSupported(type));
+    const recorder = mimeType ? new MediaRecorder(stream, { mimeType }) : new MediaRecorder(stream);
+    recorderRef.current = recorder;
+    recorder.ondataavailable = (event) => {
+      if (event.data.size > 0) chunksRef.current.push(event.data);
+    };
+    recorder.onstop = () => {
+      const blob = new Blob(chunksRef.current, { type: recorder.mimeType });
+      if (!discardRef.current && blob.size > 0) onRecorded(URL.createObjectURL(blob));
+    };
+    recorder.start();
+    setRecording(true);
+  }
+
+  function stopRecording() {
+    if (!recording) return;
+    setRecording(false);
+    recorderRef.current?.stop();
+  }
+
+  function cancelRecording() {
+    discardRef.current = true;
+    if (recording) recorderRef.current?.stop();
+    streamRef.current?.getTracks().forEach((track) => track.stop());
+    streamRef.current = null;
+    onBack();
+  }
+
+  if (status === 'starting') {
+    return <View style={styles.permission}><Text style={styles.permissionCopy}>Preparing the camera…</Text></View>;
+  }
+
+  if (status === 'denied') {
+    return (
+      <View style={styles.permission}>
+        <BrandMark size={64} />
+        <Text style={styles.permissionTitle}>Camera and microphone access</Text>
+        <Text style={styles.permissionCopy}>
+          Hekaya Kitchen needs both to save the cooking demonstration and the cook's original voice.
+        </Text>
+        <PrimaryButton
+          onPress={() => {
+            setStatus('starting');
+            void startStream();
+          }}
+          style={styles.permissionButton}
+        >
+          Allow access
+        </PrimaryButton>
+        <SecondaryButton onPress={onBack} style={styles.permissionButton}>Not now</SecondaryButton>
+      </View>
+    );
+  }
+
+  return (
+    <View style={styles.cameraScreen}>
+      {React.createElement('video', {
+        autoPlay: true,
+        muted: true,
+        playsInline: true,
+        ref: videoRef,
+        style: styles.webVideo,
+      })}
+      <View style={styles.cameraShade} />
+      <View style={styles.cameraTop}>
+        <Pressable accessibilityLabel="Cancel recording" onPress={cancelRecording} style={styles.cameraBack}>
+          <Text style={styles.cameraBackText}>×</Text>
+        </Pressable>
+        <View style={styles.liveBadge}>
+          <View style={[styles.liveDot, !recording && styles.liveDotIdle]} />
+          <Text style={styles.liveText}>{recording ? 'Recording Luqaimat' : 'Ready for Luqaimat'}</Text>
+        </View>
+        <Text style={styles.timer}>{formatDuration(elapsed)}</Text>
+      </View>
+      <View style={styles.focusFrame} />
+      <View style={styles.demoCue}>
+        <Text style={styles.demoCueTitle}>LUQAIMAT DEMO</Text>
+        <Text style={styles.demoCueText}>Show the dough, shaping, frying, or finished plate.</Text>
+      </View>
+      {recording ? <View style={styles.detectedRow}><DetectedChip text="Original voice is being preserved" /></View> : null}
+      <View style={styles.cameraBottom}>
+        <Text style={styles.cameraHint}>
+          {recording ? 'Speak naturally—Arabic and English are both welcome.' : 'Frame your demonstration, then tap record.'}
+        </Text>
+        <Pressable
+          accessibilityLabel={recording ? 'Stop recording' : 'Start recording'}
+          onPress={recording ? stopRecording : startRecording}
+          style={[styles.recordOuter, status !== 'ready' && styles.disabled]}
+        >
+          <View style={recording ? styles.stopInner : styles.recordInner} />
+        </Pressable>
+      </View>
+    </View>
+  );
+}
+
+function RecordingPreview({ onRetake, onUseRecording, uri }: { onRetake: () => void; onUseRecording: () => void; uri: string }) {
+  return (
+    <ScrollView contentContainerStyle={styles.scrollContent} style={styles.screen}>
+      <SubscreenHeader title="Check your recording" subtitle="Luqaimat cooking demonstration" onBack={onRetake} />
+      <Text style={styles.previewTitle}>Your real video is ready</Text>
+      <Text style={styles.previewCopy}>Play it now and check that the cooking and voice are clear.</Text>
+      <RecordedVideo uri={uri} />
+      <View style={styles.recordingProof}>
+        <Text style={styles.recordingProofIcon}>✓</Text>
+        <View style={styles.flexOne}>
+          <Text style={styles.recordingProofTitle}>Original recording preserved</Text>
+          <Text style={styles.recordingProofCopy}>This exact video will stay attached to the lesson during this demo.</Text>
+        </View>
+      </View>
+      <PrimaryButton onPress={onUseRecording}>Use this recording</PrimaryButton>
+      <SecondaryButton onPress={onRetake} style={styles.previewRetake}>Record again</SecondaryButton>
+    </ScrollView>
+  );
+}
+
+function RecordedVideo({ compact = false, uri }: { compact?: boolean; uri: string }) {
+  const player = useVideoPlayer(uri, (videoPlayer) => {
+    videoPlayer.loop = false;
+  });
+
+  return (
+    <View style={[styles.videoFrame, compact && styles.videoFrameCompact]}>
+      <VideoView allowsFullscreen contentFit="cover" nativeControls player={player} playsInline style={StyleSheet.absoluteFill} />
+      <View pointerEvents="none" style={styles.realBadge}><Text style={styles.realBadgeText}>ORIGINAL RECORDING</Text></View>
     </View>
   );
 }
@@ -176,7 +381,7 @@ function AnalysisScreen() {
   );
 }
 
-function ResultScreen({ arabic = false, onBack, onRetake, onSave }: { arabic?: boolean; onBack: () => void; onRetake: () => void; onSave: () => void }) {
+function ResultScreen({ arabic = false, onBack, onRetake, onSave, recordingUri }: { arabic?: boolean; onBack: () => void; onRetake: () => void; onSave: () => void; recordingUri: string | null }) {
   const [reviewIndex, setReviewIndex] = useState(0);
   const [voiceEditing, setVoiceEditing] = useState(false);
   const [corrected, setCorrected] = useState(() => new Set<string>());
@@ -244,6 +449,7 @@ function ResultScreen({ arabic = false, onBack, onRetake, onSave }: { arabic?: b
           <View style={styles.reviewProgress}>
             {extractedSteps.map((item, index) => <View key={item.index} style={[styles.reviewProgressPart, index <= reviewIndex && styles.reviewProgressActive]} />)}
           </View>
+          {recordingUri ? <RecordedVideo compact uri={recordingUri} /> : null}
           <Pressable accessibilityRole="button" style={styles.originalClip}>
             <View style={styles.clipPlay}><Text style={styles.clipPlayText}>▶</Text></View>
             <View style={styles.flexOne}>
@@ -321,6 +527,7 @@ const styles = StyleSheet.create({
   permissionCopy: { marginTop: 10, color: colors.inkMuted, fontSize: 14, lineHeight: 21, textAlign: 'center' },
   permissionButton: { alignSelf: 'stretch', marginTop: 14 },
   cameraScreen: { flex: 1, backgroundColor: colors.forestDeep },
+  webVideo: { position: 'absolute', top: 0, right: 0, bottom: 0, left: 0, width: '100%', height: '100%', objectFit: 'cover' },
   cameraShade: { position: 'absolute', top: 0, right: 0, bottom: 0, left: 0, backgroundColor: 'rgba(11,26,20,0.14)' },
   cameraTop: { position: 'absolute', left: 18, right: 18, top: 18, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
   cameraBack: { width: 42, height: 42, alignItems: 'center', justifyContent: 'center', borderRadius: 21, backgroundColor: 'rgba(12,25,20,0.56)' },
@@ -331,6 +538,9 @@ const styles = StyleSheet.create({
   liveText: { color: colors.white, fontSize: 11, fontWeight: '800' },
   timer: { minWidth: 45, color: colors.white, fontSize: 12, fontVariant: ['tabular-nums'], textAlign: 'right' },
   focusFrame: { position: 'absolute', left: '24%', right: '24%', top: '27%', height: 190, borderWidth: 2, borderColor: 'rgba(255,255,255,0.72)', borderRadius: 28 },
+  demoCue: { position: 'absolute', left: 18, right: 18, top: 78, paddingHorizontal: 14, paddingVertical: 11, borderRadius: 15, backgroundColor: 'rgba(12,25,20,0.64)' },
+  demoCueTitle: { color: '#D8B775', fontSize: 10, fontWeight: '800', letterSpacing: 1.2 },
+  demoCueText: { marginTop: 4, color: colors.white, fontSize: 12, lineHeight: 17 },
   detectedRow: { position: 'absolute', left: 18, right: 18, bottom: 150, flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
   detectedChip: { paddingHorizontal: 11, paddingVertical: 8, borderRadius: radii.round, backgroundColor: 'rgba(255,250,242,0.92)' },
   detectedText: { color: colors.forest, fontSize: 10, fontWeight: '800' },
@@ -340,6 +550,17 @@ const styles = StyleSheet.create({
   recordInner: { width: 60, height: 60, borderRadius: 30, backgroundColor: colors.danger },
   stopInner: { width: 30, height: 30, borderRadius: 8, backgroundColor: colors.danger },
   disabled: { opacity: 0.45 },
+  previewTitle: { marginTop: 12, color: colors.forestDeep, fontFamily: 'serif', fontSize: 32, lineHeight: 36 },
+  previewCopy: { marginTop: 8, color: colors.inkMuted, fontSize: 14, lineHeight: 21 },
+  videoFrame: { height: 360, marginVertical: 20, overflow: 'hidden', borderRadius: 26, backgroundColor: colors.forestDeep },
+  videoFrameCompact: { height: 210, marginTop: 0, marginBottom: 14 },
+  realBadge: { position: 'absolute', left: 12, top: 12, paddingHorizontal: 10, paddingVertical: 7, borderRadius: 10, backgroundColor: 'rgba(12,25,20,0.72)' },
+  realBadgeText: { color: colors.white, fontSize: 9, fontWeight: '800', letterSpacing: 1 },
+  recordingProof: { marginBottom: 18, padding: 15, flexDirection: 'row', alignItems: 'center', gap: 12, borderRadius: 19, backgroundColor: colors.sagePale },
+  recordingProofIcon: { width: 34, color: colors.forest, fontSize: 25, fontWeight: '800', textAlign: 'center' },
+  recordingProofTitle: { color: colors.forestDeep, fontSize: 14, fontWeight: '800' },
+  recordingProofCopy: { marginTop: 4, color: colors.inkMuted, fontSize: 11, lineHeight: 16 },
+  previewRetake: { marginTop: 10 },
   analysisScreen: { flex: 1, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 30, backgroundColor: colors.cream },
   analysisOrbit: { width: 156, height: 156, alignItems: 'center', justifyContent: 'center', borderWidth: 1, borderColor: colors.line, borderRadius: 78 },
   analysisDashed: { position: 'absolute', width: 118, height: 118, borderWidth: 2, borderStyle: 'dashed', borderColor: colors.clay, borderRadius: 59 },

@@ -9,7 +9,7 @@ Hekaya Kitchen is built around people teaching people. A family cook records a n
 ## What this prototype proves
 
 - Native React Native and Expo mobile experience, not a WebView
-- Real camera and microphone permission flow and video recording
+- Real camera and microphone permission flow, video recording, and playback of the captured cooking clip
 - Elder-friendly, voice-first capture with large controls and minimal typing
 - Dedicated Easy Mode with only three large actions: record, review, and reply
 - A persistent Arabic/English choice across Easy Mode, review, and reply screens
@@ -21,7 +21,7 @@ Hekaya Kitchen is built around people teaching people. A family cook records a n
 - Elder encouragement saved back into the family lesson
 - Searchable family lesson collection
 
-The current repository is a polished local demonstration. The two-second processing result, media attachment, playback, and feedback persistence are simulated in memory. They make the full product journey testable without pretending that a production backend already exists.
+The current repository is a polished local demonstration. Camera recording and local playback use the real captured video. The processing result, learner attachment, and feedback persistence are simulated in memory, so the full journey can be demonstrated without pretending that a production backend already exists.
 
 ## Run locally
 
@@ -45,13 +45,14 @@ pnpm doctor
 
 1. On Home, choose **Easy Mode** to open the distraction-free, accessible experience.
 2. Switch to Arabic if needed, then choose **Record a recipe**.
-3. Record a short real demonstration and stop it.
-4. Review the organised draft one question at a time. Confirm each step or demonstrate a voice correction.
-5. Save the family-verified lesson and open it.
-6. Open **Cook together**, show the three participants and their kitchen roles, then start the shared lesson.
-7. Move through one checkpoint at a time, play the teacher's original voice, and use the personalised **Ask [teacher]** action.
-8. Share a photo or voice attempt.
-9. Return to Easy Mode and choose **Reply to Amanah**. Send a one-tap or recorded response and show that it becomes part of the lesson.
+3. Record a real Luqaimat demonstration and stop it.
+4. Replay the exact captured video, check its picture and sound, then choose **Use this recording**.
+5. Review the organised draft one question at a time. Confirm each step or demonstrate a voice correction.
+6. Save the family-verified lesson and open it.
+7. Open **Cook together**, show the three participants and their kitchen roles, then start the shared lesson.
+8. Move through one checkpoint at a time, play the teacher's original voice, and use the personalised **Ask [teacher]** action.
+9. Share a photo or voice attempt.
+10. Return to Easy Mode and choose **Reply to Amanah**. Send a one-tap or recorded response and show that it becomes part of the lesson.
 
 ## How technology supports the family
 

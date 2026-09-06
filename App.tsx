@@ -21,6 +21,7 @@ import type { AppScreen, CapturePhase } from './src/types';
 export default function App() {
   const [screen, setScreen] = useState<AppScreen>('home');
   const [capturePhase, setCapturePhase] = useState<CapturePhase>('intro');
+  const [recordingUri, setRecordingUri] = useState<string | null>(null);
   const [captureReturnScreen, setCaptureReturnScreen] = useState<'home' | 'elder'>('home');
   const [elderArabic, setElderArabic] = useState(false);
   const [selectedRecipeId, setSelectedRecipeId] = useState(featuredRecipe.id);
@@ -52,6 +53,7 @@ export default function App() {
 
   function openCapture(returnTo: 'home' | 'elder', phase: CapturePhase = 'intro') {
     setCaptureReturnScreen(returnTo);
+    if (phase === 'intro') setRecordingUri(null);
     setCapturePhase(phase);
     setScreen('capture');
   }
@@ -69,7 +71,13 @@ export default function App() {
     setScreen('together');
   }
 
-  function handleRecordingComplete() {
+  function handleRecordingComplete(uri?: string) {
+    if (!uri) return;
+    setRecordingUri(uri);
+    setCapturePhase('preview');
+  }
+
+  function processRecording() {
     setCapturePhase('analysis');
     analysisTimer.current = setTimeout(() => setCapturePhase('result'), 1900);
   }
@@ -131,13 +139,18 @@ export default function App() {
             onBack={() => setScreen(captureReturnScreen)}
             onBegin={() => setCapturePhase('camera')}
             onRecorded={handleRecordingComplete}
-            onRetake={() => setCapturePhase('intro')}
+            onRetake={() => {
+              setRecordingUri(null);
+              setCapturePhase('intro');
+            }}
             onSave={() => {
               setVerifiedRecipeIds((current) => new Set(current).add(featuredRecipe.id));
               if (captureReturnScreen === 'elder') setScreen('elder');
               else openRecipe(featuredRecipe.id, 'home');
             }}
+            onUseRecording={processRecording}
             phase={capturePhase}
+            recordingUri={recordingUri}
           />
         ) : null}
         {screen === 'recipe' ? (
