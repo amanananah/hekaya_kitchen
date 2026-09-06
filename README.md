@@ -1,62 +1,86 @@
-# Mirath · ميراث
+# Hekaya Kitchen · حكاية
 
-Mirath is a native mobile family-heritage app that helps elders pass down the unwritten knowledge behind traditional recipes. A family member records a natural cooking demonstration; Mirath turns it into visual checkpoints, family stories, and a guided lesson for the next generation.
+**A human-led intergenerational cooking platform that helps families preserve, practise, and pass down treasured recipes together.**
 
-> Preserve more than ingredients. Pass down the instinct.
+Hekaya Kitchen is built around people teaching people. A family cook records a natural cooking demonstration, reviews the resulting lesson, and remains the trusted teacher. Speech and translation tools reduce the work of writing everything down; they do not replace the family's knowledge, decisions, or relationships. A younger relative can then follow the recipe, share an attempt, and receive feedback that becomes part of the evolving lesson.
 
-## Native mobile milestone
+> Elder teaches → younger relative practises → elder responds → family knowledge continues.
 
-- Built with React Native and Expo—not a website or WebView
-- Records real video and audio with the phone camera
-- Demonstrates capture, recipe extraction, and interactive Guided Cook lessons
-- Includes a searchable five-recipe family archive with recipe-specific stories and coaching
-- Configured for Android APK and iOS builds
-- Uses the native application ID `ae.mirath.app`
+## What this prototype proves
 
-The extraction screen currently uses a short simulated analysis step. Connecting the recorded video to a secure AI service is the next backend milestone.
+- Native React Native and Expo mobile experience, not a WebView
+- Real camera and microphone permission flow and video recording
+- Elder-friendly, voice-first capture with large controls and minimal typing
+- Dedicated Easy Mode with only three large actions: record, review, and reply
+- A persistent Arabic/English choice across Easy Mode, review, and reply screens
+- One large teacher-confirmation question at a time, with voice correction and no invented confidence score
+- Arabic and English lesson status, original-voice playback entry points, and visual checkpoints
+- One-step-at-a-time guided learning
+- Cook Together sessions with participants, simple kitchen roles, and shared progress
+- Private attempt sharing with a photo or voice-message choice
+- Elder encouragement saved back into the family lesson
+- Searchable family lesson collection
 
-## Run on a phone during development
+The current repository is a polished local demonstration. The two-second processing result, media attachment, playback, and feedback persistence are simulated in memory. They make the full product journey testable without pretending that a production backend already exists.
 
-Install the dependencies and start Expo:
+## Run locally
+
+Requirements: Node.js 20+, pnpm, and Expo Go or a mobile simulator.
 
 ```powershell
 pnpm install
 pnpm start
 ```
 
-Scan the QR code with Expo Go on Android or the Camera app on iPhone. The camera experience is native and asks for device permissions.
+Scan the QR code with Expo Go. The app requests camera and microphone permission only when recording starts.
 
-## Create a downloadable Android APK
+Useful checks:
 
-The repository includes a private GitHub Actions workflow that builds a standalone APK without an Expo account:
+```powershell
+pnpm typecheck
+pnpm doctor
+```
 
-1. Open the repository's **Actions** tab.
-2. Choose **Build installable Android app**.
-3. Select **Run workflow**.
-4. When it finishes, download the **Mirath-Android-APK** artifact.
+## Demonstration script
 
-The artifact contains `Mirath-preview.apk`, ready to install on an Android phone after allowing installs from the browser or Files app. It is an internal-testing build, not the final Play Store release.
+1. On Home, choose **Easy Mode** to open the distraction-free, accessible experience.
+2. Switch to Arabic if needed, then choose **Record a recipe**.
+3. Record a short real demonstration and stop it.
+4. Review the organised draft one question at a time. Confirm each step or demonstrate a voice correction.
+5. Save the family-verified lesson and open it.
+6. Open **Cook together**, show the three participants and their kitchen roles, then start the shared lesson.
+7. Move through one checkpoint at a time, play the teacher's original voice, and use the personalised **Ask [teacher]** action.
+8. Share a photo or voice attempt.
+9. Return to Easy Mode and choose **Reply to Amanah**. Send a one-tap or recorded response and show that it becomes part of the lesson.
 
-### Expo cloud alternative
+## How technology supports the family
 
-Sign in to an Expo account, then run:
+The family's knowledge is the source of every lesson. Supporting tools help with speech transcription, Arabic–English translation, structuring materials and steps, and identifying details for the teacher to confirm. Every output remains a draft until a person reviews it.
+
+Hekaya Kitchen does not claim to measure ingredients, judge dough or food quality, recognise live cooking actions, calculate meaningful confidence percentages, or give autonomous safety-critical recommendations. The production design retains the original recording so family members can compare the draft with its human source.
+
+## Production architecture
+
+See [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) for the proposed system, validation gates, privacy controls, failure handling, and data flow. No API keys or credentials belong in this repository; production secrets must remain in a backend secret manager.
+
+## Evidence and project records
+
+- [Architecture and data flow](docs/ARCHITECTURE.md)
+- [Testing evidence](docs/TESTING.md)
+- [Privacy decisions](docs/PRIVACY.md)
+- [Human-led development and assistance record](docs/AI_USAGE.md)
+- [Team responsibilities](docs/TEAM.md)
+
+Commit authorship should use each member's own Git identity. The team should commit in small, reviewable increments and update the evidence documents as the implementation changes.
+
+## Build an Android APK
+
+The private GitHub Actions workflow can create a standalone APK: open **Actions**, choose **Build installable Android app**, run the workflow, then download the **Hekaya-Kitchen-Android-APK** artifact.
+
+With an Expo account, the included EAS profile can also create a preview APK:
 
 ```powershell
 npx eas-cli@latest build --platform android --profile preview
 ```
 
-The `preview` profile in `eas.json` produces an installable `.apk` file for judges and testers. For a Google Play release, use the `production` profile, which produces an Android App Bundle (`.aab`):
-
-```powershell
-npx eas-cli@latest build --platform android --profile production
-```
-
-iOS builds are also configured, but Apple distribution requires Apple Developer credentials.
-
-## Product roadmap
-
-1. Securely upload recordings and run speech/vision extraction.
-2. Let the elder confirm uncertain quantities and visual checkpoints.
-3. Add Arabic localization and family invitations.
-4. Store encrypted family archives with consent and deletion controls.
-5. Validate the experience with elders and younger family members.
+Apple distribution requires Apple Developer credentials.
