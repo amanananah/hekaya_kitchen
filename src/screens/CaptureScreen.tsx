@@ -353,7 +353,7 @@ function RecordedVideo({ compact = false, uri }: { compact?: boolean; uri: strin
 
   return (
     <View style={[styles.videoFrame, compact && styles.videoFrameCompact]}>
-      <VideoView allowsFullscreen contentFit="cover" nativeControls player={player} playsInline style={StyleSheet.absoluteFill} />
+      <VideoView contentFit="cover" fullscreenOptions={{ enable: true }} nativeControls player={player} playsInline style={StyleSheet.absoluteFill} />
       <View pointerEvents="none" style={styles.realBadge}><Text style={styles.realBadgeText}>ORIGINAL RECORDING</Text></View>
     </View>
   );

@@ -11,20 +11,21 @@
     "doctor": "expo-doctor"
   },
   "dependencies": {
-    "@expo/metro-runtime": "~6.1.2",
-    "expo": "~54.0.37",
-    "expo-camera": "~17.0.10",
-    "expo-status-bar": "~3.0.9",
-    "expo-system-ui": "~6.0.9",
-    "expo-video": "~3.0.16",
-    "react": "19.1.0",
-    "react-dom": "19.1.0",
-    "react-native": "0.81.5",
-    "react-native-safe-area-context": "~5.6.2",
+    "@expo/metro-runtime": "~57.0.15",
+    "expo": "~57.0.20",
+    "expo-camera": "~57.0.4",
+    "expo-splash-screen": "~57.0.8",
+    "expo-status-bar": "~57.0.1",
+    "expo-system-ui": "~57.0.3",
+    "expo-video": "~57.0.3",
+    "react": "19.2.3",
+    "react-dom": "19.2.3",
+    "react-native": "0.86.3",
+    "react-native-safe-area-context": "~5.7.0",
     "react-native-web": "^0.21.2"
   },
   "devDependencies": {
-    "@types/react": "~19.1.17",
-    "typescript": "~5.9.3"
+    "@types/react": "~19.2.18",
+    "typescript": "~6.0.3"
   }
 }

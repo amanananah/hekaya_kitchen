@@ -7,12 +7,6 @@
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
-    "newArchEnabled": true,
-    "splash": {
-      "image": "./assets/splash-icon.png",
-      "resizeMode": "contain",
-      "backgroundColor": "#F7F2E9"
-    },
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "ae.hekaya.kitchen",
@@ -42,7 +36,16 @@
           "recordAudioAndroid": true
         }
       ],
-      "expo-video"
+      "expo-video",
+      [
+        "expo-splash-screen",
+        {
+          "image": "./assets/splash-icon.png",
+          "imageWidth": 200,
+          "resizeMode": "contain",
+          "backgroundColor": "#F7F2E9"
+        }
+      ]
     ]
   }
 }
