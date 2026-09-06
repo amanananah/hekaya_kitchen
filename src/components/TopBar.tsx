@@ -9,8 +9,8 @@ export function TopBar() {
       <View style={styles.brand}>
         <BrandMark />
         <View>
-          <Text style={styles.title}>Mirath <Text style={styles.arabic}>ميراث</Text></Text>
-          <Text style={styles.subtitle}>A living family cookbook</Text>
+          <Text style={styles.title}>Hekaya Kitchen <Text style={styles.arabic}>حكاية</Text></Text>
+          <Text style={styles.subtitle}>Your family cookbook</Text>
         </View>
       </View>
       <Pressable accessibilityLabel="Open profile" style={styles.avatar}>
@@ -59,4 +59,3 @@ const styles = StyleSheet.create({
     fontWeight: '700',
   },
 });
-

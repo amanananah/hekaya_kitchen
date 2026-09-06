@@ -1,8 +1,8 @@
 {
   "expo": {
-    "name": "Mirath",
-    "slug": "mirath",
-    "scheme": "mirath",
+    "name": "Hekaya Kitchen",
+    "slug": "hekaya-kitchen",
+    "scheme": "hekaya",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
@@ -15,14 +15,14 @@
     },
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "ae.mirath.app",
+      "bundleIdentifier": "ae.hekaya.kitchen",
       "infoPlist": {
-        "NSCameraUsageDescription": "Mirath uses the camera to record family recipe demonstrations.",
-        "NSMicrophoneUsageDescription": "Mirath records the cook's voice so family stories and instructions are preserved."
+        "NSCameraUsageDescription": "Hekaya Kitchen uses the camera to record family cooking demonstrations.",
+        "NSMicrophoneUsageDescription": "Hekaya Kitchen records the cook's voice so family stories and instructions are preserved."
       }
     },
     "android": {
-      "package": "ae.mirath.app",
+      "package": "ae.hekaya.kitchen",
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#274F3C"
@@ -34,12 +34,11 @@
       [
         "expo-camera",
         {
-          "cameraPermission": "Allow Mirath to record family recipe demonstrations.",
-          "microphonePermission": "Allow Mirath to preserve the cook's voice and stories.",
+          "cameraPermission": "Allow Hekaya Kitchen to record family cooking demonstrations.",
+          "microphonePermission": "Allow Hekaya Kitchen to preserve the cook's voice and stories.",
           "recordAudioAndroid": true
         }
       ]
     ]
   }
 }
-

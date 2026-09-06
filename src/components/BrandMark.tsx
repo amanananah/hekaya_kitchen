@@ -20,7 +20,7 @@ export function BrandMark({ size = 44, inverse = false }: BrandMarkProps) {
         },
       ]}
     >
-      <Text style={[styles.letter, { color: inverse ? colors.forest : colors.paper }]}>م</Text>
+      <Text style={[styles.letter, { color: inverse ? colors.forest : colors.paper }]}>ح</Text>
     </View>
   );
 }
@@ -35,4 +35,3 @@ const styles = StyleSheet.create({
     fontWeight: '700',
   },
 });
-
