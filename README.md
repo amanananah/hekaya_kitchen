@@ -8,9 +8,7 @@ Hekaya Kitchen is built around people teaching people. A family cook records a n
 
 ## What this prototype proves
 
-- Native React Native and Expo mobile experience, not a WebView
 - Real camera and microphone permission flow, video recording, and playback of the captured cooking clip
-- Two-minute Peanut Butter Sandwich practice lesson for a reliable live demonstration
 - Elder-friendly, voice-first capture with large controls and minimal typing
 - Dedicated Easy Mode with only three large actions: record, review, and reply
 - A persistent Arabic/English choice across Easy Mode, review, and reply screens
